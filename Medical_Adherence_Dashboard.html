@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Medical Adherence Predictor — Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --blue:   #1565C0;
+    --red:    #C62828;
+    --green:  #2E7D32;
+    --orange: #E65100;
+    --purple: #6A1B9A;
+    --teal:   #00695C;
+    --grey:   #455A64;
+    --bg:     #F4F6F8;
+    --card:   #FFFFFF;
+    --border: #DDE1E7;
+    --text:   #1A2332;
+    --muted:  #607D8B;
+    --header: #0D1B2A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Top header ── */
+  .top-bar {
+    background: var(--header);
+    color: #fff;
+    padding: 0 28px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .top-bar .logo {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: .3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .top-bar .logo span { color: #64B5F6; }
+  .top-bar .meta { font-size: 12px; color: #90A4AE; }
+
+  /* ── Page nav tabs ── */
+  .tab-bar {
+    background: #fff;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    padding: 0 28px;
+    gap: 4px;
+  }
+  .tab {
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    color: var(--muted);
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+  .tab:hover:not(.active) { color: var(--text); background: var(--bg); }
+
+  /* ── Pages ── */
+  .page { display: none; padding: 24px 28px 40px; }
+  .page.active { display: block; }
+
+  /* ── KPI strip ── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .kpi {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: var(--accent, var(--blue));
+    border-radius: 8px 0 0 8px;
+  }
+  .kpi label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .kpi .val  { font-size: 26px; font-weight: 700; line-height: 1.2; margin-top: 4px; }
+  .kpi .sub  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* ── Section titles ── */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    margin: 24px 0 12px;
+  }
+
+  /* ── Chart grid ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-1 { display: grid; grid-template-columns: 1fr; gap: 16px; }
+
+  /* ── Chart card ── */
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    position: relative;
+  }
+  .chart-card h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .chart-card .subtitle {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .chart-wrap { position: relative; }
+
+  /* ── Legend pills ── */
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+  /* ── Insight box ── */
+  .insight {
+    background: #E3F2FD;
+    border-left: 4px solid var(--blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 12.5px;
+    color: #1A237E;
+    margin-top: 14px;
+    line-height: 1.5;
+  }
+  .insight b { font-weight: 700; }
+
+  /* ── Table ── */
+  .tbl-wrap { overflow-x: auto; margin-top: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #ECEFF1; color: var(--muted); font-weight: 700; font-size: 11px;
+       text-transform: uppercase; letter-spacing: .4px; padding: 10px 14px; text-align: left; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  .bar-cell { display: flex; align-items: center; gap: 8px; }
+  .bar-bg { flex: 1; background: #ECEFF1; border-radius: 4px; height: 8px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+  .badge-blue { background: #BBDEFB; color: #0D47A1; }
+  .badge-green { background: #C8E6C9; color: #1B5E20; }
+  .badge-orange { background: #FFE0B2; color: #BF360C; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .kpi-row { grid-template-columns: repeat(3,1fr); }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="top-bar">
+  <div class="logo">
+    💊 <span>Medical Adherence Predictor</span> &nbsp;—&nbsp; Analytics Dashboard
+  </div>
+  <div class="meta">Dataset: 2,000 patients &nbsp;|&nbsp; 3 ML Models &nbsp;|&nbsp; April 2026</div>
+</div>
+
+<!-- Tabs -->
+<div class="tab-bar">
+  <div class="tab active" onclick="showPage('overview')">📊 Overview</div>
+  <div class="tab" onclick="showPage('demographics')">👥 Demographics</div>
+  <div class="tab" onclick="showPage('financial')">💰 Financial Analysis</div>
+  <div class="tab" onclick="showPage('medication')">💊 Medication Patterns</div>
+  <div class="tab" onclick="showPage('models')">🤖 Model Performance</div>
+</div>
+
+<!-- ════════════════════════  PAGE 1: OVERVIEW  ════════════════════════ -->
+<div id="page-overview" class="page active">
+
+  <div class="kpi-row">
+    <div class="kpi" style="--accent:#1565C0">
+      <label>Total Patients</label>
+      <div class="val">2,000</div>
+      <div class="sub">Full dataset</div>
+    </div>
+    <div class="kpi" style="--accent:#2E7D32">
+      <label>Adherent</label>
+      <div class="val" style="color:#2E7D32">1,069</div>
+      <div class="sub">53.4% of patients</div>
+    </div>
+    <div class="kpi" style="--accent:#C62828">
+      <label>Non-Adherent</label>
+      <div class="val" style="color:#C62828">931</div>
+      <div class="sub">46.6% of patients</div>
+    </div>
+    <div class="kpi" style="--accent:#6A1B9A">
+      <label>Avg Age</label>
+      <div class="val">50.3</div>
+      <div class="sub">years</div>
+    </div>
+    <div class="kpi" style="--accent:#E65100">
+      <label>Avg Refill Ratio</label>
+      <div class="val">76.4%</div>
+      <div class="sub">refills received / expected</div>
+    </div>
+    <div class="kpi" style="--accent:#00695C">
+      <label>Avg Financial Burden</label>
+      <div class="val">0.45</div>
+      <div class="sub">claim / contribution</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="chart-card">
+      <h3>Adherence Distribution</h3>
+      <div class="subtitle">Overall patient adherence split</div>
+      <div class="chart-wrap" style="height:260px">
+        <canvas id="c-overview-donut"></canvas>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#2E7D32"></div>Adherent (1,069)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#C62828"></div>Non-Adherent (931)</div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>Adherence by Insurance Type</h3>
+      <div class="subtitle">Patient count by insurance plan and adherence</div>
+      <div class="chart-wrap" style="height:260px">
+        <canvas id="c-insurance"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <b>Key Finding:</b> 53.4% of patients are adherent to their medication, showing a relatively balanced class distribution.
+    PPO insurance holders have the highest patient volume across both adherent and non-adherent groups.
+    The project uses <b>SMOTE oversampling</b> to handle any class imbalance in the ML pipeline.
+  </div>
+</div>
+
+<!-- ════════════════════════  PAGE 2: DEMOGRAPHICS  ════════════════════════ -->
+<div id="page-demographics" class="page">
+
+  <div class="grid-2">
+    <div class="chart-card">
+      <h3>Adherence by Gender</h3>
+      <div class="subtitle">Patient count split by gender and adherence status</div>
+      <div class="chart-wrap" style="height:280px">
+        <canvas id="c-gender"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>Adherence by Age Group</h3>
+      <div class="subtitle">Adherence patterns across life stages</div>
+      <div class="chart-wrap" style="height:280px">
+        <canvas id="c-agegroup"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px">
+    <div class="chart-card">
+      <h3>Adherence by Chronic Condition</h3>
+      <div class="subtitle">Patient count per condition type</div>
+      <div class="chart-wrap" style="height:280px">
+        <canvas id="c-condition"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>Adherence Rate by Age Group</h3>
+      <div class="subtitle">% adherent within each age group</div>
+      <div class="chart-wrap" style="height:280px">
+        <canvas id="c-agegroup-rate"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <b>Key Finding:</b> <b>Seniors (65+)</b> have the lowest adherence rate (~46.6%), while <b>Young Adults (18-29)</b> show the highest (~56.6%).
+    Gender has minimal impact — Female patients show slightly higher adherence than Male.
+    <b>Hypertension</b> has the highest absolute patient volume but similar adherence rates to other conditions.
+  </div>
+</div>
+
+<!-- ════════════════════════  PAGE 3: FINANCIAL  ════════════════════════ -->
+<div id="page-financial" class="page">
+
+  <div class="grid-2">
+    <div class="chart-card">
+      <h3>Avg Financial Burden by Adherence &amp; Insurance</h3>
+      <div class="subtitle">Claim amount ÷ annual contribution — higher = more burden</div>
+      <div class="chart-wrap" style="height:300px">
+        <canvas id="c-finburden"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>Financial Burden Distribution</h3>
+      <div class="subtitle">Adherent vs Non-Adherent comparison by insurance plan</div>
+      <div class="chart-wrap" style="height:300px">
+        <canvas id="c-finburden2"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Financial Summary Table</div>
+  <div class="chart-card">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Insurance Type</th>
+            <th>Adherent — Avg Burden</th>
+            <th>Non-Adherent — Avg Burden</th>
+            <th>Difference</th>
+            <th>Impact</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>HMO</b></td>
+            <td>0.443</td>
+            <td>0.474</td>
+            <td style="color:#C62828">+0.031</td>
+            <td><span class="badge badge-orange">Moderate</span></td>
+          </tr>
+          <tr>
+            <td><b>Medicaid</b></td>
+            <td>0.404</td>
+            <td>0.483</td>
+            <td style="color:#C62828">+0.079</td>
+            <td><span class="badge badge-orange">High</span></td>
+          </tr>
+          <tr>
+            <td><b>Medicare</b></td>
+            <td>0.427</td>
+            <td>0.464</td>
+            <td style="color:#C62828">+0.037</td>
+            <td><span class="badge badge-orange">Moderate</span></td>
+          </tr>
+          <tr>
+            <td><b>PPO</b></td>
+            <td>0.446</td>
+            <td>0.457</td>
+            <td style="color:#C62828">+0.011</td>
+            <td><span class="badge badge-green">Low</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="insight">
+    <b>Key Finding:</b> Non-adherent patients consistently have <b>higher financial burden</b> across all insurance types.
+    <b>Medicaid</b> shows the largest gap (0.079) — patients with lower coverage and higher out-of-pocket costs are significantly more likely to skip medications.
+    This aligns with the broader literature: financial strain is a leading driver of medication non-adherence.
+  </div>
+</div>
+
+<!-- ════════════════════════  PAGE 4: MEDICATION  ════════════════════════ -->
+<div id="page-medication" class="page">
+
+  <div class="grid-2">
+    <div class="chart-card">
+      <h3>Avg Refill Ratio by Condition &amp; Adherence</h3>
+      <div class="subtitle">Refills received ÷ expected refills — higher is better</div>
+      <div class="chart-wrap" style="height:300px">
+        <canvas id="c-refill"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>Adherence by Days Supply</h3>
+      <div class="subtitle">30 / 60 / 90-day prescription fills</div>
+      <div class="chart-wrap" style="height:300px">
+        <canvas id="c-dayssupply"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Refill Ratio Detail Table</div>
+  <div class="chart-card">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Condition</th>
+            <th>Adherent — Avg Refill Ratio</th>
+            <th>Non-Adherent — Avg Refill Ratio</th>
+            <th>Adherent Bar</th>
+          </tr>
+        </thead>
+        <tbody id="refill-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="insight">
+    <b>Key Finding:</b> <b>Refill Ratio</b> is the strongest predictor of adherence in the ML models.
+    Heart Disease patients show the highest refill ratio among adherent patients (0.805) but the lowest among non-adherent (0.728) — suggesting a clear behavioural split.
+    90-day supply patients show proportionally better adherence rates than 30-day supply patients.
+  </div>
+</div>
+
+<!-- ════════════════════════  PAGE 5: MODELS  ════════════════════════ -->
+<div id="page-models" class="page">
+
+  <div class="grid-2">
+    <div class="chart-card">
+      <h3>Model Accuracy Comparison</h3>
+      <div class="subtitle">Test set accuracy across all 3 classifiers</div>
+      <div class="chart-wrap" style="height:280px">
+        <canvas id="c-accuracy"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>Full Metrics Comparison</h3>
+      <div class="subtitle">Precision · Recall · F1 Score · ROC-AUC</div>
+      <div class="chart-wrap" style="height:280px">
+        <canvas id="c-metrics-full"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Model Metrics Summary</div>
+  <div class="chart-card">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Accuracy</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>F1 Score</th>
+            <th>ROC-AUC</th>
+            <th>Best For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Logistic Regression</b></td>
+            <td>55.5%</td>
+            <td>57.96%</td>
+            <td><b style="color:#2E7D32">61.21%</b></td>
+            <td>59.55%</td>
+            <td>57.5%</td>
+            <td><span class="badge badge-green">Best Recall</span></td>
+          </tr>
+          <tr>
+            <td><b>Decision Tree</b></td>
+            <td>55.0%</td>
+            <td><b style="color:#1565C0">58.59%</b></td>
+            <td>54.21%</td>
+            <td>56.31%</td>
+            <td>54.28%</td>
+            <td><span class="badge badge-blue">Best Precision</span></td>
+          </tr>
+          <tr>
+            <td><b>Random Forest</b></td>
+            <td>53.25%</td>
+            <td>56.05%</td>
+            <td>58.41%</td>
+            <td>57.21%</td>
+            <td>52.94%</td>
+            <td><span class="badge badge-orange">Ensemble</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="insight" style="margin-top:14px">
+      <b>Healthcare Context:</b> In a clinical setting, <b>Recall (Sensitivity)</b> is the most critical metric — we want to catch as many non-adherent patients as possible to intervene early.
+      <b>Logistic Regression achieves the highest Recall (61.21%)</b>, making it the recommended model for deployment despite not having the highest overall accuracy.
+    </div>
+  </div>
+
+  <div class="chart-card" style="margin-top:16px">
+    <h3>Radar — Model Profiles</h3>
+    <div class="subtitle">Multi-metric view across all classifiers</div>
+    <div class="chart-wrap" style="height:300px">
+      <canvas id="c-radar"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════  SCRIPTS  ════════════════════════ -->
+<script>
+// ── Tab navigation ──────────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  // resize charts in newly shown page
+  setTimeout(() => Chart.instances && Object.values(Chart.instances).forEach(c => c.resize()), 50);
+}
+
+// ── Colour palette ──────────────────────────────────────────────────────────
+const BLUE   = '#1565C0';
+const RED    = '#C62828';
+const GREEN  = '#2E7D32';
+const ORANGE = '#E65100';
+const PURPLE = '#6A1B9A';
+const TEAL   = '#00695C';
+const LBLUE  = '#90CAF9';
+const LRED   = '#EF9A9A';
+const LGREEN = '#A5D6A7';
+
+const defaults = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12, padding: 14 } },
+    tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + ctx.parsed.y } }
+  },
+  scales: {
+    x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+    y: { grid: { color: '#ECEFF1' }, ticks: { font: { size: 11 } } }
+  }
+};
+
+function mk(id, type, data, opts) {
+  const ctx = document.getElementById(id).getContext('2d');
+  return new Chart(ctx, { type, data, options: opts });
+}
+
+// ═══════════════════  PAGE 1 CHARTS  ═══════════════════
+
+// Donut — adherence distribution
+mk('c-overview-donut', 'doughnut', {
+  labels: ['Adherent', 'Non-Adherent'],
+  datasets: [{ data: [1069, 931], backgroundColor: [GREEN, RED],
+               borderColor: ['#fff','#fff'], borderWidth: 3, hoverOffset: 6 }]
+}, {
+  responsive: true, maintainAspectRatio: false, cutout: '62%',
+  plugins: {
+    legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 16, boxWidth: 14 } },
+    tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + ctx.raw + ' patients (' + (ctx.raw/2000*100).toFixed(1) + '%)' } }
+  }
+});
+
+// Insurance stacked bar
+mk('c-insurance', 'bar', {
+  labels: ['HMO', 'Medicaid', 'Medicare', 'PPO'],
+  datasets: [
+    { label: 'Adherent',     data: [318, 158, 211, 382], backgroundColor: GREEN + 'CC', borderRadius: 4 },
+    { label: 'Non-Adherent', data: [290, 135, 169, 337], backgroundColor: RED   + 'CC', borderRadius: 4 }
+  ]
+}, { ...defaults, plugins: { ...defaults.plugins, tooltip: { mode: 'index', intersect: false } },
+     scales: { ...defaults.scales, x: { ...defaults.scales.x, stacked: false }, y: { ...defaults.scales.y, stacked: false } }
+});
+
+// ═══════════════════  PAGE 2 CHARTS  ═══════════════════
+
+// Gender
+mk('c-gender', 'bar', {
+  labels: ['Female', 'Male'],
+  datasets: [
+    { label: 'Adherent',     data: [568, 501], backgroundColor: GREEN + 'CC', borderRadius: 5 },
+    { label: 'Non-Adherent', data: [467, 464], backgroundColor: RED   + 'CC', borderRadius: 5 }
+  ]
+}, defaults);
+
+// Age group stacked
+mk('c-agegroup', 'bar', {
+  labels: ['Young (18-29)', 'Adult (30-49)', 'Middle-Aged (50-64)', 'Senior (65+)'],
+  datasets: [
+    { label: 'Adherent',     data: [213, 339, 249, 268], backgroundColor: GREEN  + 'CC', borderRadius: 4 },
+    { label: 'Non-Adherent', data: [163, 271, 190, 307], backgroundColor: RED    + 'CC', borderRadius: 4 }
+  ]
+}, defaults);
+
+// Adherence rate by age group
+const ageAdh = [213,339,249,268], ageTot = [376,610,439,575];
+mk('c-agegroup-rate', 'bar', {
+  labels: ['Young (18-29)', 'Adult (30-49)', 'Middle-Aged (50-64)', 'Senior (65+)'],
+  datasets: [{
+    label: 'Adherence Rate (%)',
+    data: ageAdh.map((v,i) => +(v/ageTot[i]*100).toFixed(1)),
+    backgroundColor: [BLUE+'CC', TEAL+'CC', PURPLE+'CC', ORANGE+'CC'],
+    borderRadius: 5
+  }]
+}, { ...defaults,
+     plugins: { ...defaults.plugins, legend: { display: false },
+       tooltip: { callbacks: { label: ctx => ' Adherence Rate: ' + ctx.raw + '%' } } },
+     scales: { ...defaults.scales, y: { ...defaults.scales.y, max: 100, ticks: { callback: v => v + '%' } } }
+});
+
+// Condition stacked
+mk('c-condition', 'bar', {
+  labels: ['Asthma', 'Diabetes', 'Heart Disease', 'Hypertension'],
+  datasets: [
+    { label: 'Adherent',     data: [147, 230, 94, 276], backgroundColor: GREEN + 'CC', borderRadius: 4 },
+    { label: 'Non-Adherent', data: [132, 199, 90, 260], backgroundColor: RED   + 'CC', borderRadius: 4 }
+  ]
+}, defaults);
+
+// ═══════════════════  PAGE 3 CHARTS  ═══════════════════
+
+// Financial burden grouped
+mk('c-finburden', 'bar', {
+  labels: ['HMO', 'Medicaid', 'Medicare', 'PPO'],
+  datasets: [
+    { label: 'Adherent',     data: [0.443, 0.404, 0.427, 0.446], backgroundColor: GREEN + 'CC', borderRadius: 5 },
+    { label: 'Non-Adherent', data: [0.474, 0.483, 0.464, 0.457], backgroundColor: RED   + 'CC', borderRadius: 5 }
+  ]
+}, { ...defaults,
+     plugins: { ...defaults.plugins, tooltip: { mode: 'index', intersect: false,
+       callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + ctx.raw.toFixed(3) } } },
+     scales: { ...defaults.scales, y: { ...defaults.scales.y, min: 0.35, ticks: { callback: v => v.toFixed(2) } } }
+});
+
+// Financial burden difference bar
+mk('c-finburden2', 'bar', {
+  labels: ['HMO', 'Medicaid', 'Medicare', 'PPO'],
+  datasets: [{
+    label: 'Burden Gap (Non-Adherent − Adherent)',
+    data: [0.031, 0.079, 0.037, 0.011],
+    backgroundColor: [ORANGE+'CC', RED+'CC', ORANGE+'CC', TEAL+'CC'],
+    borderRadius: 5
+  }]
+}, { ...defaults,
+     plugins: { ...defaults.plugins, legend: { display: false },
+       tooltip: { callbacks: { label: ctx => ' Gap: +' + ctx.raw.toFixed(3) } } }
+});
+
+// ═══════════════════  PAGE 4 CHARTS  ═══════════════════
+
+// Refill ratio grouped
+mk('c-refill', 'bar', {
+  labels: ['Asthma', 'Diabetes', 'Heart Disease', 'Hypertension'],
+  datasets: [
+    { label: 'Adherent',     data: [0.771, 0.742, 0.805, 0.774], backgroundColor: GREEN + 'CC', borderRadius: 5 },
+    { label: 'Non-Adherent', data: [0.764, 0.756, 0.728, 0.762], backgroundColor: RED   + 'CC', borderRadius: 5 }
+  ]
+}, { ...defaults,
+     plugins: { ...defaults.plugins, tooltip: { mode: 'index', intersect: false,
+       callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + ctx.raw.toFixed(3) } } },
+     scales: { ...defaults.scales, y: { ...defaults.scales.y, min: 0.6, ticks: { callback: v => v.toFixed(2) } } }
+});
+
+// Days supply
+mk('c-dayssupply', 'bar', {
+  labels: ['30-day supply', '60-day supply', '90-day supply'],
+  datasets: [
+    { label: 'Adherent',     data: [529, 316, 224], backgroundColor: GREEN + 'CC', borderRadius: 5 },
+    { label: 'Non-Adherent', data: [463, 282, 186], backgroundColor: RED   + 'CC', borderRadius: 5 }
+  ]
+}, { ...defaults,
+     plugins: { ...defaults.plugins, tooltip: { mode: 'index', intersect: false,
+       callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + ctx.raw } } }
+});
+
+// Refill ratio table
+const refillData = [
+  { condition: 'Asthma',        adh: 0.771, non: 0.764 },
+  { condition: 'Diabetes',      adh: 0.742, non: 0.756 },
+  { condition: 'Heart Disease', adh: 0.805, non: 0.728 },
+  { condition: 'Hypertension',  adh: 0.774, non: 0.762 },
+];
+const tbody = document.getElementById('refill-table');
+refillData.forEach(r => {
+  const pct = Math.round(r.adh * 100);
+  tbody.innerHTML += `
+    <tr>
+      <td><b>${r.condition}</b></td>
+      <td>${r.adh.toFixed(3)}</td>
+      <td>${r.non.toFixed(3)}</td>
+      <td>
+        <div class="bar-cell">
+          <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${GREEN}"></div></div>
+          <span style="font-size:11px;color:#555;min-width:36px">${pct}%</span>
+        </div>
+      </td>
+    </tr>`;
+});
+
+// ═══════════════════  PAGE 5 CHARTS  ═══════════════════
+
+// Accuracy bar
+mk('c-accuracy', 'bar', {
+  labels: ['Logistic Regression', 'Decision Tree', 'Random Forest'],
+  datasets: [{
+    label: 'Accuracy',
+    data: [55.5, 55.0, 53.25],
+    backgroundColor: [BLUE+'CC', TEAL+'CC', PURPLE+'CC'],
+    borderRadius: 6
+  }]
+}, { ...defaults,
+     plugins: { ...defaults.plugins, legend: { display: false },
+       tooltip: { callbacks: { label: ctx => ' Accuracy: ' + ctx.raw + '%' } } },
+     scales: { ...defaults.scales, y: { ...defaults.scales.y, min: 50, max: 60, ticks: { callback: v => v + '%' } } }
+});
+
+// Full metrics grouped
+mk('c-metrics-full', 'bar', {
+  labels: ['Logistic Regression', 'Decision Tree', 'Random Forest'],
+  datasets: [
+    { label: 'Precision', data: [57.96, 58.59, 56.05], backgroundColor: BLUE   + 'BB', borderRadius: 3 },
+    { label: 'Recall',    data: [61.21, 54.21, 58.41], backgroundColor: GREEN  + 'BB', borderRadius: 3 },
+    { label: 'F1 Score',  data: [59.55, 56.31, 57.21], backgroundColor: ORANGE + 'BB', borderRadius: 3 },
+    { label: 'ROC-AUC',   data: [57.5,  54.28, 52.94], backgroundColor: PURPLE + 'BB', borderRadius: 3 }
+  ]
+}, { ...defaults,
+     plugins: { ...defaults.plugins, tooltip: { mode: 'index', intersect: false,
+       callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + ctx.raw.toFixed(2) + '%' } } },
+     scales: { ...defaults.scales, y: { ...defaults.scales.y, min: 48, ticks: { callback: v => v + '%' } } }
+});
+
+// Radar
+mk('c-radar', 'radar', {
+  labels: ['Accuracy', 'Precision', 'Recall', 'F1 Score', 'ROC-AUC'],
+  datasets: [
+    { label: 'Logistic Regression', data: [55.5, 57.96, 61.21, 59.55, 57.5],
+      borderColor: BLUE,   backgroundColor: BLUE   + '22', pointBackgroundColor: BLUE,   pointRadius: 4 },
+    { label: 'Decision Tree',       data: [55.0, 58.59, 54.21, 56.31, 54.28],
+      borderColor: TEAL,   backgroundColor: TEAL   + '22', pointBackgroundColor: TEAL,   pointRadius: 4 },
+    { label: 'Random Forest',       data: [53.25, 56.05, 58.41, 57.21, 52.94],
+      borderColor: PURPLE, backgroundColor: PURPLE + '22', pointBackgroundColor: PURPLE, pointRadius: 4 }
+  ]
+}, {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12, padding: 14 } } },
+  scales: {
+    r: {
+      min: 48, max: 65,
+      ticks: { font: { size: 10 }, stepSize: 5, callback: v => v + '%' },
+      pointLabels: { font: { size: 12, weight: '600' } },
+      grid: { color: '#DDE1E7' }
+    }
+  }
+});
+</script>
+</body>
+</html>
