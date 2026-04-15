@@ -303,31 +303,21 @@ def scale_features(df: pd.DataFrame, target_col: str = 'adherent') -> pd.DataFra
     """
     Standardize numerical features using StandardScaler.
 
-    Why StandardScaler?
-    - Centers data to mean=0, std=1
-    - Required for Logistic Regression (distance-based)
-    - Doesn't hurt tree-based models either
-    - We DO NOT scale the target variable
+    ⚠️  BUG FIX (Data Leakage): Scaling is NO LONGER applied here.
+    Previously, StandardScaler was fit on the entire dataset (train + test)
+    before the train/test split, leaking test set statistics into training.
+
+    Scaling is now done correctly inside train.py AFTER the train/test split:
+      - Scaler is fit ONLY on X_train
+      - Same scaler is applied (transform only) to X_test
+
+    This function is kept for backward compatibility but returns df unchanged.
     """
     print("\n" + "=" * 60)
-    print("STEP 3e: Scaling Numerical Features")
+    print("STEP 3e: Feature Scaling (deferred to train.py — see BUG FIX note)")
     print("=" * 60)
-
-    df = df.copy()
-
-    # Select only numeric columns excluding the target
-    scale_cols = [
-        col for col in df.select_dtypes(include=[np.number]).columns
-        if col != target_col and not col.startswith('gender_encoded')
-        and df[col].nunique() > 2  # Don't scale binary dummy columns
-    ]
-
-    scaler = StandardScaler()
-    df[scale_cols] = scaler.fit_transform(df[scale_cols])
-
-    print(f"   [OK] Scaled {len(scale_cols)} features: {scale_cols}")
-    print(f"   (Mean ≈ 0, Std ≈ 1 for each feature)")
-
+    print("   [INFO] Scaling moved to train.py to prevent data leakage.")
+    print("   [INFO] Scaler will be fit on X_train only, then applied to X_test.")
     return df
 
 
