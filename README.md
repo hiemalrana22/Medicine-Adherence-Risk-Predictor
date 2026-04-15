@@ -131,6 +131,55 @@ outputs/reports/final_predictions.csv
 
 ---
 
+## 📈 Grafana Dashboard (Localhost)
+
+This repo now includes a fully provisioned Grafana setup using SQLite as the data source for:
+- `outputs/reports/final_predictions.csv`
+- `outputs/reports/model_metrics.csv`
+- `outputs/reports/tableau_output.csv`
+
+### 1) Build Grafana data source DB
+
+```bash
+python scripts/build_grafana_data.py
+```
+
+This creates:
+`outputs/reports/adherence_dashboard.db`
+
+### 2) Start Grafana on localhost
+
+```bash
+docker compose -f docker-compose.grafana.yml up -d
+```
+
+Open:
+`http://localhost:3001`
+
+Login:
+- Username: `admin`
+- Password: `admin`
+
+If you specifically want port 3000:
+```bash
+GRAFANA_PORT=3000 docker compose -f docker-compose.grafana.yml up -d
+```
+
+### 3) Stop Grafana
+
+```bash
+docker compose -f docker-compose.grafana.yml down
+```
+
+### Notes
+- Dashboard file: `grafana_dashboard.json`
+- Datasource provisioning: `grafana/provisioning/datasources/sqlite.yml`
+- Dashboard provisioning: `grafana/provisioning/dashboards/dashboard.yml`
+- If you rerun the ML pipeline and outputs change, rerun:
+  `python scripts/build_grafana_data.py`
+
+---
+
 ## 📈 Results
 
 | Model               | Accuracy | F1 Score | ROC-AUC |
