@@ -1,0 +1,2389 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_TESTDATA",
+      "label": "TestData",
+      "description": "Grafana built-in TestData datasource \u2014 go to Connections > Data sources > Add > TestData DB",
+      "type": "datasource",
+      "pluginId": "testdata",
+      "pluginName": "TestData"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "10.0.0"
+    },
+    {
+      "type": "datasource",
+      "id": "testdata",
+      "name": "TestData",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "barchart",
+      "name": "Bar chart",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "bargauge",
+      "name": "Bar gauge",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "piechart",
+      "name": "Pie chart",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "text",
+      "name": "Text",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": []
+  },
+  "description": "End-to-end visualization of the Medical Adherence Predictor ML project \u2014 from raw data through model predictions.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "id": 2,
+      "type": "text",
+      "title": "\ud83d\udc8a Medical Adherence Predictor \u2014 End-to-End ML Project",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 5
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "## Project Summary\nThis dashboard visualizes the **Medical Adherence Predictor** \u2014 an end-to-end ML project predicting patient medication adherence using Python, R, scikit-learn, and Docker.\n\n| Component | Detail |\n|---|---|\n| **Dataset** | 2,000 patients \u00b7 Mendeley Data |\n| **Target** | Predict medication adherence (binary: 0 = Non-Adherent, 1 = Adherent) |\n| **Pipeline** | Preprocessing \u2192 Feature Engineering \u2192 SMOTE \u2192 Training \u2192 Evaluation |\n| **Best Model** | Logistic Regression \u00b7 Accuracy: 55.5% \u00b7 ROC-AUC: 0.575 |\n| **Stack** | Python 3.10 \u00b7 R 4.x \u00b7 scikit-learn \u00b7 pandas \u00b7 Docker \u00b7 Grafana |\n"
+      },
+      "datasource": null,
+      "targets": [],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "type": "row",
+      "title": "\ud83d\udcca Key Metrics",
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "\ud83d\udc65 Total Patients",
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "manual_entry",
+          "points": [
+            [
+              2000,
+              1744675200000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 36
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#1F60C4"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#1F60C4",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "2000"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "\u2705 Adherent Patients",
+      "gridPos": {
+        "x": 6,
+        "y": 6,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "manual_entry",
+          "points": [
+            [
+              1069,
+              1744675200000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 36
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#37872D"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#37872D",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "1069 (53.4%)"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "\u274c Non-Adherent Patients",
+      "gridPos": {
+        "x": 12,
+        "y": 6,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "manual_entry",
+          "points": [
+            [
+              931,
+              1744675200000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 36
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#C4162A"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#C4162A",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "931 (46.6%)"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "\ud83c\udf82 Average Patient Age",
+      "gridPos": {
+        "x": 18,
+        "y": 6,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "manual_entry",
+          "points": [
+            [
+              50.3,
+              1744675200000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 36
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 1,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#8F3BB8"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8F3BB8",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "50.3"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 8,
+      "type": "stat",
+      "title": "\ud83c\udfc6 Best Accuracy (LR)",
+      "gridPos": {
+        "x": 0,
+        "y": 10,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "manual_entry",
+          "points": [
+            [
+              55.5,
+              1744675200000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 36
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 1,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#1F60C4"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#1F60C4",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "55.5%"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 9,
+      "type": "stat",
+      "title": "\ud83c\udfaf Best F1 Score (LR)",
+      "gridPos": {
+        "x": 6,
+        "y": 10,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "manual_entry",
+          "points": [
+            [
+              0.5955,
+              1744675200000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 36
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 4,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#37872D"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#37872D",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "0.5955"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 10,
+      "type": "stat",
+      "title": "\ud83d\udcc8 Best ROC-AUC (LR)",
+      "gridPos": {
+        "x": 12,
+        "y": 10,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "manual_entry",
+          "points": [
+            [
+              0.575,
+              1744675200000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 36
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 4,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#E0B400"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#E0B400",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "0.575"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 11,
+      "type": "stat",
+      "title": "\ud83d\udc8a Avg Medications / Patient",
+      "gridPos": {
+        "x": 18,
+        "y": 10,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "manual_entry",
+          "points": [
+            [
+              4.0,
+              1744675200000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 36
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 1,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#C4162A"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#C4162A",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "4.0"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 12,
+      "type": "row",
+      "title": "\ud83d\udc65 Patient Demographics",
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 13,
+      "type": "barchart",
+      "title": "Adherence Rate by Age Group (%)",
+      "gridPos": {
+        "x": 0,
+        "y": 15,
+        "w": 8,
+        "h": 9
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "AgeGroup,AdherenceRate\n<30,56.7\n30-45,54.3\n45-60,59.1\n60-75,48.3\n75+,45.8"
+        }
+      ],
+      "options": {
+        "orientation": "auto",
+        "xTickLabelRotation": -20,
+        "fillOpacity": 80,
+        "gradientMode": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "groupWidth": 0.7,
+        "barWidth": 0.9,
+        "stacking": "none",
+        "showValue": "always",
+        "barRadius": 0.05,
+        "xField": "AgeGroup"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#5794F2"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 14,
+      "type": "piechart",
+      "title": "Gender Distribution",
+      "gridPos": {
+        "x": 8,
+        "y": 15,
+        "w": 8,
+        "h": 9
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "Female,Male\n1035,965"
+        }
+      ],
+      "options": {
+        "pieType": "pie",
+        "displayLabels": [
+          "name",
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 15,
+      "type": "piechart",
+      "title": "Insurance Type Distribution",
+      "gridPos": {
+        "x": 16,
+        "y": 15,
+        "w": 8,
+        "h": 9
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "PPO,HMO,Medicare,Medicaid\n719,608,380,293"
+        }
+      ],
+      "options": {
+        "pieType": "pie",
+        "displayLabels": [
+          "name",
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 16,
+      "type": "row",
+      "title": "\ud83c\udfe5 Medical Profile Analysis",
+      "gridPos": {
+        "x": 0,
+        "y": 24,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 17,
+      "type": "barchart",
+      "title": "Adherence Rate by Chronic Condition (%)",
+      "gridPos": {
+        "x": 0,
+        "y": 25,
+        "w": 8,
+        "h": 9
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "Condition,AdherenceRate\nDiabetes,53.6\nAsthma,52.7\nHypertension,51.5\nHeart Disease,51.1"
+        }
+      ],
+      "options": {
+        "orientation": "auto",
+        "xTickLabelRotation": -20,
+        "fillOpacity": 80,
+        "gradientMode": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "groupWidth": 0.7,
+        "barWidth": 0.9,
+        "stacking": "none",
+        "showValue": "always",
+        "barRadius": 0.05,
+        "xField": "Condition"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#F2495C"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 18,
+      "type": "barchart",
+      "title": "Adherence Rate by Days Supply (%)",
+      "gridPos": {
+        "x": 8,
+        "y": 25,
+        "w": 8,
+        "h": 9
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "DaysSupply,AdherenceRate\n30 days,53.3\n60 days,52.8\n90 days,54.6"
+        }
+      ],
+      "options": {
+        "orientation": "auto",
+        "xTickLabelRotation": -20,
+        "fillOpacity": 80,
+        "gradientMode": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "groupWidth": 0.7,
+        "barWidth": 0.9,
+        "stacking": "none",
+        "showValue": "always",
+        "barRadius": 0.05,
+        "xField": "DaysSupply"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#FADE2A"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 19,
+      "type": "barchart",
+      "title": "Adherence Rate by Number of Medications (%)",
+      "gridPos": {
+        "x": 16,
+        "y": 25,
+        "w": 8,
+        "h": 9
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "NumMeds,AdherenceRate\n1 med,56.7\n2 meds,55.4\n3 meds,54.0\n4 meds,59.6\n5 meds,49.7\n6 meds,53.8\n7 meds,45.1"
+        }
+      ],
+      "options": {
+        "orientation": "auto",
+        "xTickLabelRotation": -20,
+        "fillOpacity": 80,
+        "gradientMode": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "groupWidth": 0.7,
+        "barWidth": 0.9,
+        "stacking": "none",
+        "showValue": "always",
+        "barRadius": 0.05,
+        "xField": "NumMeds"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#73BF69"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 20,
+      "type": "row",
+      "title": "\ud83d\udcb0 Financial Analysis",
+      "gridPos": {
+        "x": 0,
+        "y": 34,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 21,
+      "type": "stat",
+      "title": "\ud83d\udcb5 Avg Claim \u2014 Adherent",
+      "gridPos": {
+        "x": 0,
+        "y": 35,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "manual_entry",
+          "points": [
+            [
+              1158.79,
+              1744675200000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 36
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 2,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#37872D"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#37872D",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "1158.79"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 22,
+      "type": "stat",
+      "title": "\ud83d\udcb8 Avg Claim \u2014 Non-Adherent",
+      "gridPos": {
+        "x": 6,
+        "y": 35,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "manual_entry",
+          "points": [
+            [
+              1259.37,
+              1744675200000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 36
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 2,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#C4162A"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#C4162A",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "1259.37"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 23,
+      "type": "stat",
+      "title": "\ud83c\udfe6 Avg Annual Contribution",
+      "gridPos": {
+        "x": 12,
+        "y": 35,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "manual_entry",
+          "points": [
+            [
+              2962.76,
+              1744675200000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 36
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 2,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#1F60C4"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#1F60C4",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "2962.76"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 24,
+      "type": "stat",
+      "title": "\ud83d\udcc9 Non-Adherent Claim Premium",
+      "gridPos": {
+        "x": 18,
+        "y": 35,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "manual_entry",
+          "points": [
+            [
+              100.58,
+              1744675200000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 36
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 2,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#E0B400"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#E0B400",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "100.58"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 25,
+      "type": "barchart",
+      "title": "Avg Claim Amount: Adherent vs Non-Adherent (USD)",
+      "gridPos": {
+        "x": 0,
+        "y": 39,
+        "w": 12,
+        "h": 9
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "Group,AvgClaimUSD\nAdherent,1158.79\nNon-Adherent,1259.37"
+        }
+      ],
+      "options": {
+        "orientation": "auto",
+        "xTickLabelRotation": -20,
+        "fillOpacity": 80,
+        "gradientMode": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "groupWidth": 0.7,
+        "barWidth": 0.9,
+        "stacking": "none",
+        "showValue": "always",
+        "barRadius": 0.05,
+        "xField": "Group"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#5794F2"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 26,
+      "type": "barchart",
+      "title": "Financial Overview by Category (USD)",
+      "gridPos": {
+        "x": 12,
+        "y": 39,
+        "w": 12,
+        "h": 9
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "Category,AmountUSD\nAnnual Contribution,2962.76\nClaim (Adherent),1158.79\nClaim (Non-Adherent),1259.37"
+        }
+      ],
+      "options": {
+        "orientation": "auto",
+        "xTickLabelRotation": -20,
+        "fillOpacity": 80,
+        "gradientMode": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "groupWidth": 0.7,
+        "barWidth": 0.9,
+        "stacking": "none",
+        "showValue": "always",
+        "barRadius": 0.05,
+        "xField": "Category"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#F2495C"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 27,
+      "type": "row",
+      "title": "\ud83e\udd16 ML Model Performance",
+      "gridPos": {
+        "x": 0,
+        "y": 48,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 28,
+      "type": "table",
+      "title": "\ud83d\udccb Full Model Metrics Comparison",
+      "gridPos": {
+        "x": 0,
+        "y": 49,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "Model,Accuracy,Precision,Recall,F1 Score,ROC-AUC,Notes\nLogistic Regression,0.5550,0.5796,0.6121,0.5955,0.5750,Baseline (pre-fix)\nDecision Tree,0.5500,0.5859,0.5421,0.5631,0.5428,Baseline (pre-fix)\nRandom Forest,0.5325,0.5605,0.5841,0.5721,0.5294,Baseline (pre-fix)\nGradient Boosting,TBD,TBD,TBD,TBD,TBD,New model (post-fix)"
+        }
+      ],
+      "options": {
+        "cellHeight": "md",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false
+        },
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Accuracy"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 0.5
+                    },
+                    {
+                      "color": "green",
+                      "value": 0.7
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "F1 Score"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 0.5
+                    },
+                    {
+                      "color": "green",
+                      "value": 0.7
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ROC-AUC"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 0.5
+                    },
+                    {
+                      "color": "green",
+                      "value": 0.7
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 29,
+      "type": "bargauge",
+      "title": "Accuracy by Model",
+      "gridPos": {
+        "x": 0,
+        "y": 57,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "Model,Accuracy\nLogistic Regression,0.5550\nDecision Tree,0.5500\nRandom Forest,0.5325"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": true,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/"
+        },
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "showUnfilled": true,
+        "namePlacement": "auto",
+        "minVizHeight": 10,
+        "minVizWidth": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "decimals": 3,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "green",
+                "value": 0.7
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 80
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 30,
+      "type": "bargauge",
+      "title": "F1 Score by Model",
+      "gridPos": {
+        "x": 8,
+        "y": 57,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "Model,F1 Score\nLogistic Regression,0.5955\nDecision Tree,0.5631\nRandom Forest,0.5721"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": true,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/"
+        },
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "showUnfilled": true,
+        "namePlacement": "auto",
+        "minVizHeight": 10,
+        "minVizWidth": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "max": 1,
+          "decimals": 3,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "green",
+                "value": 0.7
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 80
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 31,
+      "type": "bargauge",
+      "title": "ROC-AUC by Model",
+      "gridPos": {
+        "x": 16,
+        "y": 57,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "Model,ROC-AUC\nLogistic Regression,0.5750\nDecision Tree,0.5428\nRandom Forest,0.5294"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": true,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/"
+        },
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "showUnfilled": true,
+        "namePlacement": "auto",
+        "minVizHeight": 10,
+        "minVizWidth": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "max": 1,
+          "decimals": 3,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "green",
+                "value": 0.7
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 80
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 32,
+      "type": "text",
+      "title": "\ud83d\udd0d Feature Importance + Bug Fixes & Improvements",
+      "gridPos": {
+        "x": 0,
+        "y": 65,
+        "w": 24,
+        "h": 12
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "### \ud83d\udc1b Bugs Found & Fixed\n\n| # | Bug | Location | Impact | Fix |\n|---|-----|----------|--------|-----|\n| 1 | **Data Leakage** | `preprocessing.py` `scale_features()` | StandardScaler fit on ALL data before train/test split \u2192 test stats leaked into training | Scaler now fit on X_train only in `train.py` |\n| 2 | **Double Class Balancing** | `train.py` `train_models()` | SMOTE oversampling + `class_weight='balanced'` applied together \u2192 over-correction, hurts precision | Removed `class_weight='balanced'` since SMOTE already handles it |\n| 3 | **Feature Redundancy** | `train.py` `prepare_features()` | `refill_ratio`, `refill_gap`, `refills_received`, `expected_refills` all present (multicollinearity) | Dropped raw columns \u2014 engineered versions used instead |\n\n### \ud83d\ude80 Improvements Added\n\n| Improvement | Detail |\n|-------------|--------|\n| **New Model** | Gradient Boosting Classifier \u2014 sequential ensemble, best on tabular data |\n| **Better RF params** | n_estimators=200, max_depth=8, min_samples_leaf=8 |\n| **Better DT params** | min_samples_split=20, min_samples_leaf=10 |\n| **Scaler saved** | `scaler.pkl` saved for production inference |\n\n### \ud83d\udcca Expected Accuracy After Fixes\n\n> The inherent ceiling is ~65\u201368% due to synthetic data noise. Fixes should push from 55% \u2192 **62\u201366%** range.\n> Accuracy above ~68% on this dataset would indicate overfitting.\n"
+      },
+      "datasource": null,
+      "targets": [],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    },
+    {
+      "id": 33,
+      "type": "row",
+      "title": "\ud83c\udfaf Prediction Results",
+      "gridPos": {
+        "x": 0,
+        "y": 72,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 34,
+      "type": "stat",
+      "title": "\ud83d\udce6 Test Set Size",
+      "gridPos": {
+        "x": 0,
+        "y": 73,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "manual_entry",
+          "points": [
+            [
+              400,
+              1744675200000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 36
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#1F60C4"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#1F60C4",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "400"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 35,
+      "type": "stat",
+      "title": "\u2705 Correct Predictions",
+      "gridPos": {
+        "x": 6,
+        "y": 73,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "manual_entry",
+          "points": [
+            [
+              213,
+              1744675200000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 36
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#37872D"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#37872D",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "213"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 36,
+      "type": "stat",
+      "title": "\u274c Misclassified",
+      "gridPos": {
+        "x": 12,
+        "y": 73,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "manual_entry",
+          "points": [
+            [
+              187,
+              1744675200000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 36
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#C4162A"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#C4162A",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "187"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 37,
+      "type": "stat",
+      "title": "\ud83c\udfaf Test Accuracy",
+      "gridPos": {
+        "x": 18,
+        "y": 73,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "manual_entry",
+          "points": [
+            [
+              53.25,
+              1744675200000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "text": {
+          "valueSize": 36
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 1,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#E0B400"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#E0B400",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "53.25%"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 38,
+      "type": "piechart",
+      "title": "Prediction Confidence Distribution",
+      "gridPos": {
+        "x": 0,
+        "y": 77,
+        "w": 8,
+        "h": 9
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "Low,Medium,High\n266,129,5"
+        }
+      ],
+      "options": {
+        "pieType": "pie",
+        "displayLabels": [
+          "name",
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 39,
+      "type": "barchart",
+      "title": "ML Pipeline: Patients at Each Stage",
+      "gridPos": {
+        "x": 8,
+        "y": 77,
+        "w": 16,
+        "h": 9
+      },
+      "datasource": {
+        "type": "testdata",
+        "uid": "dfj6b8im9i2v4b"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "Stage,Patients\nRaw Data,2000\nAfter Cleaning,1980\nFeature Engineered,1980\nTraining Set (80%),1580\nTest Set (20%),400"
+        }
+      ],
+      "options": {
+        "orientation": "auto",
+        "xTickLabelRotation": -20,
+        "fillOpacity": 80,
+        "gradientMode": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "groupWidth": 0.7,
+        "barWidth": 0.9,
+        "stacking": "none",
+        "showValue": "always",
+        "barRadius": 0.05,
+        "xField": "Stage"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#8F3BB8"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 40,
+      "type": "row",
+      "title": "\ud83d\udee0\ufe0f Tech Stack & Project Structure",
+      "gridPos": {
+        "x": 0,
+        "y": 86,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 41,
+      "type": "text",
+      "title": "\u2699\ufe0f Technology Stack",
+      "gridPos": {
+        "x": 0,
+        "y": 87,
+        "w": 12,
+        "h": 9
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "| Layer | Technology | Purpose |\n|-------|------------|---------|\n| **Language** | Python 3.10 | ML pipeline, preprocessing, modeling |\n| **ML Library** | scikit-learn | Logistic Regression, Decision Tree, Random Forest |\n| **Imbalance** | imbalanced-learn (SMOTE) | Class imbalance correction |\n| **Data** | pandas \u00b7 numpy | Data manipulation & transformation |\n| **Visualization** | matplotlib \u00b7 seaborn | EDA plots (18 figures generated) |\n| **Statistical Analysis** | R 4.x \u00b7 ggplot2 | 8 advanced statistical visualizations |\n| **Containerization** | Docker | Reproducible pipeline environment |\n| **Reporting** | CSV export | Power BI / Grafana integration |\n| **Dataset** | Mendeley Data | 2,000 patient medication records |\n| **Dashboard** | Grafana | This monitoring dashboard |\n"
+      },
+      "datasource": null,
+      "targets": [],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    },
+    {
+      "id": 42,
+      "type": "text",
+      "title": "\ud83d\udcc1 Project Structure",
+      "gridPos": {
+        "x": 12,
+        "y": 87,
+        "w": 12,
+        "h": 9
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "```\nmedical_adherence_predictor/\n\u251c\u2500\u2500 data/\n\u2502   \u251c\u2500\u2500 raw/medication_adherence.csv   \u2190 2,000 patients\n\u2502   \u2514\u2500\u2500 processed/                      \u2190 cleaned, featured, test CSVs\n\u251c\u2500\u2500 src/\n\u2502   \u251c\u2500\u2500 preprocessing.py               \u2190 encoding, scaling, nulls\n\u2502   \u251c\u2500\u2500 feature_engineering.py         \u2190 refill_ratio, financial_burden\n\u2502   \u251c\u2500\u2500 train.py                       \u2190 SMOTE + 3 models trained\n\u2502   \u2514\u2500\u2500 evaluate.py                    \u2190 metrics, confusion matrix, ROC\n\u251c\u2500\u2500 r_scripts/analysis.R               \u2190 8 ggplot2 analyses\n\u251c\u2500\u2500 notebooks/exploration.ipynb        \u2190 step-by-step walkthrough\n\u251c\u2500\u2500 outputs/\n\u2502   \u251c\u2500\u2500 figures/     \u2190 18 PNG plots generated\n\u2502   \u251c\u2500\u2500 models/      \u2190 3 saved .pkl files\n\u2502   \u2514\u2500\u2500 reports/     \u2190 final_predictions.csv, model_metrics.csv\n\u251c\u2500\u2500 Dockerfile                         \u2190 containerised pipeline\n\u2514\u2500\u2500 README.md\n```\n"
+      },
+      "datasource": null,
+      "targets": [],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 39,
+  "tags": [
+    "medical",
+    "ml",
+    "adherence",
+    "healthcare",
+    "python"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "\ud83d\udc8a Medical Adherence Predictor \u2014 Full Project Dashboard",
+  "uid": "medical-adherence-v5",
+  "version": 1,
+  "weekStart": ""
+}

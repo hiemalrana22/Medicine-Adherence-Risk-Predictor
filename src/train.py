@@ -30,10 +30,11 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
+from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.metrics import classification_report, accuracy_score
 try:
     from imblearn.over_sampling import SMOTE
@@ -62,48 +63,77 @@ def prepare_features(df: pd.DataFrame, target: str):
     """
     Separate features (X) from the target variable (y).
     Drop any columns that shouldn't be used for prediction.
+
+    BUG FIX (Feature Redundancy):
+    Previously, both the raw refill columns (refills_received, expected_refills)
+    AND the engineered features derived from them (refill_ratio, refill_gap) were
+    all passed to the model together. This causes multicollinearity and confuses
+    tree-based models by splitting importance across near-identical signals.
+
+    Fix: Drop the raw constituent columns when engineered versions exist.
     """
-    # Drop target column
     X = df.drop(columns=[target], errors='ignore')
     y = df[target]
 
-    # Drop any remaining ID-like columns
+    # Drop ID-like columns
     drop_cols = [c for c in X.columns if 'id' in c.lower()]
-    X.drop(columns=drop_cols, errors='ignore', inplace=True)
 
-    # Fill any remaining NaN with 0 (safety net)
+    # BUG FIX: Drop raw refill columns — refill_ratio & refill_gap capture the
+    # same information more cleanly and without scale issues.
+    if 'refill_ratio' in X.columns and 'refill_gap' in X.columns:
+        drop_cols += ['expected_refills', 'refills_received']
+        print("   [FIX] Dropped raw refill cols (refill_ratio + refill_gap used instead)")
+
+    X.drop(columns=drop_cols, errors='ignore', inplace=True)
     X = X.fillna(0)
 
-    print(f"\nFeatures (X): {X.shape[1]} columns")
+    print(f"\nFeatures (X): {X.shape[1]} columns: {list(X.columns)}")
     print(f"Target (y): {y.value_counts().to_dict()}")
 
     return X, y
 
 
-def split_data(X, y):
+def split_and_scale(X, y):
     """
-    Split into training and test sets.
+    Split into train/test sets AND apply StandardScaler correctly.
 
-    WHY STRATIFIED SPLIT?
-    - Ensures both classes are proportionally represented
-    - Prevents a scenario where test set has only one class
-    - Critical when classes are imbalanced
+    BUG FIX (Data Leakage):
+    Previously, StandardScaler was fit on the ENTIRE dataset in preprocessing.py
+    before the train/test split. This means test set statistics (mean, std) leaked
+    into the training process, making evaluation metrics overly optimistic.
+
+    Correct approach (implemented here):
+      1. Split FIRST
+      2. Fit scaler on X_train ONLY
+      3. Transform both X_train and X_test using the training scaler
     """
     print("\n" + "=" * 60)
-    print("Train/Test Split")
+    print("Train/Test Split + Scaling (Leak-Free)")
     print("=" * 60)
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y,
         test_size=TEST_SIZE,
         random_state=RANDOM_STATE,
-        stratify=y  # Preserve class distribution!
+        stratify=y
     )
 
     print(f"   Training set: {X_train.shape[0]} samples")
     print(f"   Test set:     {X_test.shape[0]} samples")
     print(f"   Train adherence rate: {y_train.mean():.1%}")
     print(f"   Test adherence rate:  {y_test.mean():.1%}")
+
+    # Scale: fit on train only, transform both
+    scale_cols = [
+        col for col in X_train.select_dtypes(include=[np.number]).columns
+        if X_train[col].nunique() > 2  # skip binary dummies
+    ]
+    scaler = StandardScaler()
+    X_train[scale_cols] = scaler.fit_transform(X_train[scale_cols])
+    X_test[scale_cols]  = scaler.transform(X_test[scale_cols])   # transform only!
+
+    print(f"   [FIX] Scaler fit on X_train only. Transformed {len(scale_cols)} cols.")
+    joblib.dump(scaler, os.path.join(MODEL_DIR, "scaler.pkl"))
 
     return X_train, X_test, y_train, y_test
 
@@ -287,23 +317,48 @@ def train_models(X_train, y_train, X_test, y_test):
     print("STEP 6: Training Machine Learning Models")
     print("=" * 60)
 
+    # BUG FIX (Double Class Balancing):
+    # Previously ALL models used class_weight='balanced' PLUS SMOTE was applied.
+    # This double-corrects for class imbalance → models over-predict minority class
+    # → lower precision and overall accuracy.
+    # Fix: SMOTE handles imbalance on training data. Remove class_weight='balanced'.
+    # Exception: Logistic Regression still benefits from it as a regularization signal.
+
     models = {
         "Logistic Regression": LogisticRegression(
             max_iter=1000,
-            class_weight='balanced',  # Additional imbalance handling
+            C=0.5,                    # Stronger regularization (was default C=1.0)
+            solver='lbfgs',
             random_state=RANDOM_STATE
+            # Note: class_weight removed — SMOTE already balances classes
         ),
         "Decision Tree": DecisionTreeClassifier(
-            max_depth=5,              # Prevent overfitting
-            class_weight='balanced',
+            max_depth=6,              # Slightly deeper than before (was 5)
+            min_samples_split=20,     # Prevent overfitting on SMOTE samples
+            min_samples_leaf=10,
             random_state=RANDOM_STATE
+            # Note: class_weight removed — SMOTE already balances classes
         ),
         "Random Forest": RandomForestClassifier(
-            n_estimators=100,         # 100 trees
-            max_depth=10,
-            class_weight='balanced',
+            n_estimators=200,         # More trees (was 100) → more stable
+            max_depth=8,              # Reduced from 10 → less overfitting
+            min_samples_split=15,
+            min_samples_leaf=8,
+            max_features='sqrt',      # Standard for classification
             random_state=RANDOM_STATE,
-            n_jobs=-1                 # Use all CPU cores
+            n_jobs=-1
+            # Note: class_weight removed — SMOTE already balances classes
+        ),
+        "Gradient Boosting": GradientBoostingClassifier(
+            # NEW MODEL: Sequential ensemble — each tree corrects prior errors
+            # Typically outperforms Random Forest on tabular data
+            n_estimators=150,
+            learning_rate=0.08,       # Slow learning = better generalization
+            max_depth=4,              # Shallow trees work best for GB
+            min_samples_split=20,
+            min_samples_leaf=10,
+            subsample=0.8,            # Row sampling → reduces overfitting
+            random_state=RANDOM_STATE
         ),
     }
 
@@ -346,9 +401,10 @@ def save_models(results: dict, feature_names: list):
         joblib.dump(info['model'], path)
         print(f"   [OK] Saved: {filename}")
 
-    # Also save feature names (needed for evaluation)
+    # Save feature names (needed for evaluation + Grafana dashboard)
     joblib.dump(feature_names, os.path.join(MODEL_DIR, "feature_names.pkl"))
     print(f"   [OK] Saved: feature_names.pkl")
+    print(f"   [OK] Saved: scaler.pkl (already saved in split_and_scale)")
 
 
 def main():
@@ -362,11 +418,11 @@ def main():
     # EDA before modeling
     run_eda(df)
 
-    # Prepare features
+    # Prepare features (with redundant column fix)
     X, y = prepare_features(df, TARGET_COL)
 
-    # Split
-    X_train, X_test, y_train, y_test = split_data(X, y)
+    # Split AND scale correctly (leak-free)
+    X_train, X_test, y_train, y_test = split_and_scale(X, y)
 
     # Handle class imbalance
     X_train_resampled, y_train_resampled = apply_smote(X_train, y_train)

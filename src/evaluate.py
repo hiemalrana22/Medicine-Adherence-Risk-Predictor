@@ -63,6 +63,7 @@ def load_models_and_data():
         "Logistic Regression": "logistic_regression.pkl",
         "Decision Tree"      : "decision_tree.pkl",
         "Random Forest"      : "random_forest.pkl",
+        "Gradient Boosting"  : "gradient_boosting.pkl",   # New model added
     }
 
     for name, filename in model_files.items():
