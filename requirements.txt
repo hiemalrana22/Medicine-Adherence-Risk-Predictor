@@ -1,27 +1,29 @@
 # ============================================================
-# Medical Adherence Predictor - Python Dependencies
+# Medical Adherence Predictor — Python Dependencies
 # ============================================================
-# pandas<2.3.3 has no wheels for Python 3.14 and fails to build
-# from source (C API mismatch). Use pandas>=2.3.3 on 3.14+.
-# Docker (Python 3.10) and conda 3.11–3.13 remain supported.
 
 # Core Data Science
-pandas>=2.3.3,<3
-numpy>=2.0.0,<3
+pandas>=2.0.0,<3
+numpy>=1.26.0,<3
 
 # Machine Learning
 scikit-learn>=1.5.0,<2
-imbalanced-learn>=0.13.0     # For SMOTE (handling class imbalance)
+imbalanced-learn>=0.12.0       # SMOTE for class imbalance
 joblib>=1.3.2,<2
 
-# Visualization
+# Visualization (static plots saved to disk)
 matplotlib>=3.8.0,<4
 seaborn>=0.13.0,<1
 
-# Jupyter (optional - for notebook exploration)
-jupyter>=1.0.0
-ipykernel>=6.29.0
+# ── Streamlit Dashboard ──────────────────────────────────────
+streamlit>=1.35.0,<2            # Interactive web dashboard
+plotly>=5.18.0,<6               # Interactive charts inside Streamlit
+Pillow>=10.0.0,<11              # Image loading in dashboard
 
 # Utilities
 scipy>=1.13.0,<2
 openpyxl>=3.1.2,<4
+
+# Jupyter (optional, for local exploration)
+jupyter>=1.0.0
+ipykernel>=6.29.0

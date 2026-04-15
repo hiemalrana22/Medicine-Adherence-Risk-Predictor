@@ -31,10 +31,7 @@
     {
       "type": "stat",
       "title": "Total Test Patients",
-      "datasource": {
-        "type": "frser-sqlite-datasource",
-        "uid": "medical-sqlite"
-      },
+      "datasource": "Medical Adherence SQLite",
       "gridPos": {
         "h": 4,
         "w": 6,
@@ -73,10 +70,7 @@
     {
       "type": "stat",
       "title": "Actual Adherence Rate",
-      "datasource": {
-        "type": "frser-sqlite-datasource",
-        "uid": "medical-sqlite"
-      },
+      "datasource": "Medical Adherence SQLite",
       "gridPos": {
         "h": 4,
         "w": 6,
@@ -115,10 +109,7 @@
     {
       "type": "stat",
       "title": "Prediction Accuracy",
-      "datasource": {
-        "type": "frser-sqlite-datasource",
-        "uid": "medical-sqlite"
-      },
+      "datasource": "Medical Adherence SQLite",
       "gridPos": {
         "h": 4,
         "w": 6,
@@ -157,10 +148,7 @@
     {
       "type": "stat",
       "title": "Best ROC-AUC (Model Metrics)",
-      "datasource": {
-        "type": "frser-sqlite-datasource",
-        "uid": "medical-sqlite"
-      },
+      "datasource": "Medical Adherence SQLite",
       "gridPos": {
         "h": 4,
         "w": 6,
@@ -199,10 +187,7 @@
     {
       "type": "barchart",
       "title": "Adherence Rate by Age Group",
-      "datasource": {
-        "type": "frser-sqlite-datasource",
-        "uid": "medical-sqlite"
-      },
+      "datasource": "Medical Adherence SQLite",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -213,7 +198,7 @@
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "SELECT age_group_label AS group_name, ROUND(AVG(actual_adherence) * 100.0, 2) AS adherence_rate FROM final_predictions GROUP BY age_group_label ORDER BY adherence_rate DESC;"
+          "rawSql": "SELECT age_group_label AS group_name, ROUND(AVG(adherent) * 100.0, 2) AS adherence_rate FROM tableau_output GROUP BY age_group_label ORDER BY adherence_rate DESC;"
         }
       ],
       "options": {
@@ -232,10 +217,7 @@
     {
       "type": "barchart",
       "title": "Adherence Rate by Insurance Type",
-      "datasource": {
-        "type": "frser-sqlite-datasource",
-        "uid": "medical-sqlite"
-      },
+      "datasource": "Medical Adherence SQLite",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -246,7 +228,7 @@
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "SELECT insurance_type, ROUND(AVG(actual_adherence) * 100.0, 2) AS adherence_rate FROM final_predictions GROUP BY insurance_type ORDER BY adherence_rate DESC;"
+          "rawSql": "SELECT insurance_type, ROUND(AVG(adherent) * 100.0, 2) AS adherence_rate FROM tableau_output GROUP BY insurance_type ORDER BY adherence_rate DESC;"
         }
       ],
       "options": {
@@ -265,10 +247,7 @@
     {
       "type": "barchart",
       "title": "Prediction Confidence Distribution",
-      "datasource": {
-        "type": "frser-sqlite-datasource",
-        "uid": "medical-sqlite"
-      },
+      "datasource": "Medical Adherence SQLite",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -298,10 +277,7 @@
     {
       "type": "barchart",
       "title": "Confusion Matrix Components",
-      "datasource": {
-        "type": "frser-sqlite-datasource",
-        "uid": "medical-sqlite"
-      },
+      "datasource": "Medical Adherence SQLite",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -331,10 +307,7 @@
     {
       "type": "table",
       "title": "Model Metrics Comparison",
-      "datasource": {
-        "type": "frser-sqlite-datasource",
-        "uid": "medical-sqlite"
-      },
+      "datasource": "Medical Adherence SQLite",
       "gridPos": {
         "h": 8,
         "w": 24,

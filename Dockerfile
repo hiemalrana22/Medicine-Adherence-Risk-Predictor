@@ -1,57 +1,62 @@
 # ============================================================
-# Dockerfile - Medical Adherence Predictor
+# Dockerfile — Medical Adherence Predictor
 # ============================================================
-# This file defines the Docker container that packages
-# the entire Python ML pipeline so it can run anywhere.
+# Architecture:
+#   1. Run full ML pipeline  (preprocessing → training → evaluation)
+#   2. Serve interactive Streamlit dashboard on port 8501
+#
+# Build:  docker build -t medical-adherence-predictor .
+# Run:    docker-compose up
+# Open:   http://localhost:8501
 # ============================================================
 
-# Start from official Python 3.10 slim image (lightweight)
 FROM python:3.10-slim
 
-# Set metadata
+# ── Metadata ──────────────────────────────────────────────────
 LABEL maintainer="Medical Adherence Predictor"
-LABEL description="End-to-end ML pipeline for medication adherence prediction"
+LABEL description="ML pipeline + Streamlit dashboard for medication adherence prediction"
 
-# Set environment variables
-# Prevents Python from writing .pyc files
-ENV PYTHONDONTWRITEBYTECODE=1
-# Ensures Python output is sent straight to terminal (no buffering)
-ENV PYTHONUNBUFFERED=1
+# ── Environment ───────────────────────────────────────────────
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    STREAMLIT_SERVER_PORT=8501 \
+    STREAMLIT_SERVER_ADDRESS=0.0.0.0 \
+    STREAMLIT_SERVER_HEADLESS=true \
+    STREAMLIT_BROWSER_GATHER_USAGE_STATS=false \
+    STREAMLIT_THEME_BASE=light
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# ── Install system dependencies ──────────────────────────────
-# These are needed for some Python packages to compile
-RUN apt-get update && apt-get install -y \
+# ── System dependencies ───────────────────────────────────────
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# ── Install Python dependencies ───────────────────────────────
-# Copy requirements first (Docker layer caching optimization)
+# ── Python dependencies ───────────────────────────────────────
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# ── Copy project files into container ─────────────────────────
-COPY src/ ./src/
-COPY data/ ./data/
+# ── Copy project source ───────────────────────────────────────
+COPY src/         ./src/
+COPY app/         ./app/
+COPY data/        ./data/
+COPY scripts/     ./scripts/
 
 # ── Create output directories ─────────────────────────────────
 RUN mkdir -p outputs/figures outputs/models outputs/reports
 
-# ── Default command: run the full ML pipeline ─────────────────
-# This runs all steps in sequence when the container starts
-CMD ["sh", "-c", "\
-    echo 'Step 1: Preprocessing...' && python src/preprocessing.py && \
-    echo 'Step 2: Feature Engineering...' && python src/feature_engineering.py && \
-    echo 'Step 3: Training Models...' && python src/train.py && \
-    echo 'Step 4: Evaluating Models...' && python src/evaluate.py && \
-    echo 'Pipeline complete. Check outputs/ folder.' \
-"]
+# ── Copy entrypoint ───────────────────────────────────────────
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
 
-# ── How to use this Dockerfile ────────────────────────────────
-# BUILD:  docker build -t medical-adherence-predictor .
-# RUN:    docker run -v $(pwd)/data:/app/data -v $(pwd)/outputs:/app/outputs medical-adherence-predictor
-# SHELL:  docker run -it medical-adherence-predictor bash
+# ── Expose Streamlit port ─────────────────────────────────────
+EXPOSE 8501
+
+# ── Healthcheck ───────────────────────────────────────────────
+HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
+    CMD curl -f http://localhost:8501/_stcore/health || exit 1
+
+# ── Start: pipeline → dashboard ───────────────────────────────
+ENTRYPOINT ["./entrypoint.sh"]

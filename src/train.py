@@ -84,7 +84,7 @@ def prepare_features(df: pd.DataFrame, target: str):
         drop_cols += ['expected_refills', 'refills_received']
         print("   [FIX] Dropped raw refill cols (refill_ratio + refill_gap used instead)")
 
-    X.drop(columns=drop_cols, errors='ignore', inplace=True)
+    X = X.drop(columns=drop_cols, errors='ignore')
     X = X.fillna(0)
 
     print(f"\nFeatures (X): {X.shape[1]} columns: {list(X.columns)}")
@@ -129,6 +129,8 @@ def split_and_scale(X, y):
         if X_train[col].nunique() > 2  # skip binary dummies
     ]
     scaler = StandardScaler()
+    X_train = X_train.copy()
+    X_test  = X_test.copy()
     X_train[scale_cols] = scaler.fit_transform(X_train[scale_cols])
     X_test[scale_cols]  = scaler.transform(X_test[scale_cols])   # transform only!
 

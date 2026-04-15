@@ -69,8 +69,11 @@ def load_models_and_data():
     for name, filename in model_files.items():
         path = os.path.join(MODEL_DIR, filename)
         if os.path.exists(path):
-            models[name] = joblib.load(path)
-            print(f"   [OK] Loaded: {filename}")
+            try:
+                models[name] = joblib.load(path)
+                print(f"   [OK] Loaded: {filename}")
+            except Exception as exc:
+                print(f"   [WARN] Skipped {filename}: {exc}")
 
     return models, X_test, y_test
 
@@ -187,7 +190,7 @@ def plot_roc_curves(models: dict, X_test, y_test):
     """
     fig, ax = plt.subplots(figsize=(8, 6))
 
-    colors = ['#3498DB', '#E74C3C', '#27AE60']
+    colors = sns.color_palette("tab10", n_colors=max(1, len(models)))
 
     for (name, model), color in zip(models.items(), colors):
         if hasattr(model, 'predict_proba'):
@@ -223,11 +226,13 @@ def plot_metrics_comparison(metrics_df: pd.DataFrame):
 
     metrics = ['Accuracy', 'Precision', 'Recall', 'F1 Score', 'ROC-AUC']
     x = np.arange(len(metrics))
-    width = 0.25
-    colors = ['#3498DB', '#E74C3C', '#27AE60']
+    n_models = max(1, len(metrics_df))
+    width = 0.8 / n_models
+    colors = sns.color_palette("tab10", n_colors=n_models)
+    center_offset = (n_models - 1) / 2
 
     for i, (_, row) in enumerate(metrics_df.iterrows()):
-        offset = (i - 1) * width
+        offset = (i - center_offset) * width
         bars = ax.bar(
             x + offset,
             [row[m] for m in metrics],

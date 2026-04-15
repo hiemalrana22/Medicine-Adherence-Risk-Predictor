@@ -252,7 +252,7 @@ def build_feature_matrix(raw_path: str, cleaned_path: str) -> pd.DataFrame:
         cleaned_df['patient_id'] = raw_df['patient_id'].values
 
     final_df = cleaned_df.merge(eng_features, on='patient_id', how='left')
-    final_df.drop(columns=['patient_id'], errors='ignore', inplace=True)
+    final_df = final_df.drop(columns=['patient_id'], errors='ignore')
 
     print(f"\n[OK] Feature engineering complete!")
     print(f"   Original features: {len(cleaned_df.columns)}")
