@@ -200,14 +200,14 @@ def handle_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     for col in num_cols:
         if df[col].isnull().sum() > 0:
             median_val = df[col].median()
-            df[col].fillna(median_val, inplace=True)
+            df[col] = df[col].fillna(median_val)
             print(f"   [OK] '{col}' → filled NaN with median ({median_val:.2f})")
 
     # Fill categorical columns with mode
     for col in cat_cols:
         if df[col].isnull().sum() > 0:
             mode_val = df[col].mode()[0]
-            df[col].fillna(mode_val, inplace=True)
+            df[col] = df[col].fillna(mode_val)
             print(f"   [OK] '{col}' → filled NaN with mode ('{mode_val}')")
 
     print(f"\n   Total missing after imputation: {df.isnull().sum().sum()}")
@@ -293,8 +293,8 @@ def encode_categoricals(df: pd.DataFrame) -> pd.DataFrame:
             print(f"   [OK] '{col}' one-hot encoded → {list(dummies.columns)}")
 
     # Drop original text columns and patient_id (not useful for ML)
-    df.drop(columns=['gender', 'insurance_type', 'chronic_condition',
-                     'patient_id'], errors='ignore', inplace=True)
+    df = df.drop(columns=['gender', 'insurance_type', 'chronic_condition',
+                          'patient_id'], errors='ignore')
 
     return df
 

@@ -1,0 +1,46 @@
+# ============================================================
+# docker-compose.yml — Medical Adherence Predictor
+# ============================================================
+# Replaces docker-compose.grafana.yml (Grafana removed)
+# Uses Streamlit for all visualization.
+#
+# Commands:
+#   docker-compose up --build          # first time
+#   docker-compose up                  # subsequent runs
+#   docker-compose down                # stop
+#   docker-compose down -v             # stop + remove volumes
+#
+# Dashboard: http://localhost:8501
+# ============================================================
+
+services:
+  medical-adherence:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: medical-adherence-predictor:latest
+    container_name: medical-adherence-app
+
+    ports:
+      - "8501:8501"          # Streamlit dashboard
+
+    volumes:
+      # Persist model outputs and data on your host machine
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+
+    environment:
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+      - STREAMLIT_SERVER_HEADLESS=true
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+      - PYTHONUNBUFFERED=1
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s

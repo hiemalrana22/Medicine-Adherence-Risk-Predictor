@@ -177,6 +177,39 @@ docker compose -f docker-compose.grafana.yml down
 - Dashboard provisioning: `grafana/provisioning/dashboards/dashboard.yml`
 - If you rerun the ML pipeline and outputs change, rerun:
   `python scripts/build_grafana_data.py`
+- If dashboard panels are empty, verify datasource health in Grafana:
+  **Connections → Data sources → Medical Adherence SQLite → Save & Test**
+
+### Grafana Troubleshooting (quick)
+
+```bash
+# Rebuild SQLite datasource database
+python scripts/build_grafana_data.py
+
+# Restart Grafana cleanly
+docker compose -f docker-compose.grafana.yml down
+docker compose -f docker-compose.grafana.yml up -d
+
+# Inspect logs for datasource/plugin errors
+docker compose -f docker-compose.grafana.yml logs --tail=100 grafana
+```
+
+---
+
+## 🌐 Alternative Full Dashboard (No Grafana)
+
+If Grafana is blocked on your machine, generate a standalone HTML dashboard that includes:
+- KPI cards (patients, adherence rate, accuracy, best ROC-AUC)
+- Model metrics table
+- Tableau export preview table
+- Embedded evaluation figures (confusion matrix, ROC, model comparison, feature importance)
+
+```bash
+python scripts/build_project_dashboard_html.py
+```
+
+Open:
+`outputs/reports/project_dashboard.html`
 
 ---
 
