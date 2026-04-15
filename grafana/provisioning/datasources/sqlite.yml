@@ -1,0 +1,10 @@
+apiVersion: 1
+
+datasources:
+  - name: Medical Adherence SQLite
+    type: frser-sqlite-datasource
+    uid: medical-sqlite
+    isDefault: true
+    editable: true
+    jsonData:
+      path: /workspace/outputs/reports/adherence_dashboard.db

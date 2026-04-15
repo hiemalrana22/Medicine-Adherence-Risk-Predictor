@@ -1,0 +1,3 @@
+outputs/reports/adherence_dashboard.db
+__pycache__/
+*.pyc
