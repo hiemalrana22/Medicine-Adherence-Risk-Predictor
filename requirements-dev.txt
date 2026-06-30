@@ -1,0 +1,33 @@
+# ============================================================
+# Medication Adherence Predictor — FULL dependencies
+# ============================================================
+# Everything needed to run the ML pipeline, generate the plots,
+# run the multi-page dashboard (app/dashboard.py), execute the
+# tests, and open the notebooks. Used by CI and Docker.
+#
+# Installs the slim demo deps first, then adds the rest.
+# ============================================================
+
+-r requirements.txt
+
+# Machine learning / pipeline
+imbalanced-learn>=0.12.0       # SMOTE for class imbalance
+joblib>=1.3.2,<2
+
+# Static plots saved to disk (EDA + evaluation figures)
+matplotlib>=3.8.0,<4
+seaborn>=0.13.0,<1
+
+# Multi-page dashboard image loading
+Pillow>=10.4.0                 # no upper cap → keeps a wheel on new Python
+
+# Utilities
+scipy>=1.13.0,<2
+openpyxl>=3.1.2,<4
+
+# Testing (CI)
+pytest>=8.0.0,<9
+
+# Jupyter (optional, for local exploration)
+jupyter>=1.0.0
+ipykernel>=6.29.0

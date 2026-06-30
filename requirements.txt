@@ -1,32 +1,18 @@
 # ============================================================
-# Medical Adherence Predictor — Python Dependencies
+# Medication Adherence Predictor — LIVE DEMO dependencies
+# ============================================================
+# These are the ONLY packages the deployed Streamlit demo (app.py)
+# needs. Kept deliberately slim and wheel-only so it deploys fast and
+# never tries to compile anything from source on Streamlit Cloud / HF
+# Spaces (that is what broke an earlier deploy: a pinned Pillow with no
+# wheel for the runner's Python).
+#
+# For the full ML pipeline, R, tests, and notebooks, use:
+#     pip install -r requirements-dev.txt
 # ============================================================
 
-# Core Data Science
-pandas>=2.0.0,<3
-numpy>=1.26.0,<3
-
-# Machine Learning
-scikit-learn>=1.5.0,<2
-imbalanced-learn>=0.12.0       # SMOTE for class imbalance
-joblib>=1.3.2,<2
-
-# Visualization (static plots saved to disk)
-matplotlib>=3.8.0,<4
-seaborn>=0.13.0,<1
-
-# ── Streamlit Dashboard ──────────────────────────────────────
-streamlit>=1.35.0,<2            # Interactive web dashboard
-plotly>=5.18.0,<6               # Interactive charts inside Streamlit
-Pillow>=10.0.0,<11              # Image loading in dashboard
-
-# Utilities
-scipy>=1.13.0,<2
-openpyxl>=3.1.2,<4
-
-# Testing (CI)
-pytest>=8.0.0,<9
-
-# Jupyter (optional, for local exploration)
-jupyter>=1.0.0
-ipykernel>=6.29.0
+streamlit>=1.35
+pandas>=2.0
+numpy>=1.26
+plotly>=5.18
+scikit-learn>=1.5

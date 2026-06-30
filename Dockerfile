@@ -34,9 +34,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # ── Python dependencies ───────────────────────────────────────
-COPY requirements.txt .
+# The container runs the full pipeline + multi-page dashboard, so it
+# needs the complete dependency set (requirements-dev.txt), not just the
+# slim demo deps in requirements.txt.
+COPY requirements.txt requirements-dev.txt ./
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r requirements-dev.txt
 
 # ── Copy project source ───────────────────────────────────────
 COPY src/         ./src/

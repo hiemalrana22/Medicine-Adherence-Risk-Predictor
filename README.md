@@ -90,6 +90,7 @@ streamlit run app.py          # opens http://localhost:8501
 ## 🧪 Tests & CI
 
 ```bash
+pip install -r requirements-dev.txt
 pytest tests/ -v
 ```
 
@@ -118,7 +119,7 @@ src/evaluate.py             → held-out metrics, ROC/PR curves, confusion matri
 ### Run the full pipeline
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-dev.txt   # full deps (pipeline, plots, tests)
 python src/preprocessing.py
 python src/feature_engineering.py
 python src/train.py
@@ -149,7 +150,8 @@ docker-compose up --build
 ├── outputs/reports/           # model_metrics.csv, predictions (Power BI / Grafana)
 ├── docs/screenshots/          # README images
 ├── r_scripts/analysis.R       # statistical analysis in R
-└── requirements.txt
+├── requirements.txt           # slim deps for the live demo (Streamlit Cloud)
+└── requirements-dev.txt       # full deps: pipeline, plots, tests, notebooks
 ```
 
 ---
