@@ -1,5 +1,6 @@
 # 💊 Medication Adherence Risk Predictor
 
+[![Live demo](https://img.shields.io/badge/▶_Live_demo-Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://medicine-adherence-risk-predictor-hlc8weqzkz3dxft6qrwdyr.streamlit.app/)
 [![CI](https://github.com/hiemalrana22/Medicine-Adherence-Risk-Predictor/actions/workflows/ci.yml/badge.svg)](https://github.com/hiemalrana22/Medicine-Adherence-Risk-Predictor/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)
 ![Model](https://img.shields.io/badge/ROC--AUC-0.78%20(held--out)-success)
@@ -7,7 +8,7 @@
 
 > Predict which patients are at risk of **not taking their medication** — and explain *why* — from demographic, financial, and prescription-refill data.
 
-🔗 **Live demo:** _Deploy your own in ~2 minutes (see [Deploy](#-deploy-the-live-demo)) and replace this line with your Streamlit Cloud URL._
+🔗 **Live demo:** **[medicine-adherence-risk-predictor.streamlit.app](https://medicine-adherence-risk-predictor-hlc8weqzkz3dxft6qrwdyr.streamlit.app/)** — enter a patient profile and get an instant risk score with factor-by-factor drivers.
 
 ![Live demo preview](docs/screenshots/live_demo_preview.png)
 
