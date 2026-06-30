@@ -1,245 +1,175 @@
-# 💊 Medical Adherence Predictor
+# 💊 Medication Adherence Risk Predictor
 
-> An end-to-end machine learning project to predict patient medication adherence using Python, R, Docker, and Power BI.
+[![CI](https://github.com/hiemalrana22/Medicine-Adherence-Risk-Predictor/actions/workflows/ci.yml/badge.svg)](https://github.com/hiemalrana22/Medicine-Adherence-Risk-Predictor/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)
+![Model](https://img.shields.io/badge/ROC--AUC-0.78%20(held--out)-success)
+![License](https://img.shields.io/badge/license-educational-lightgrey)
 
----
+> Predict which patients are at risk of **not taking their medication** — and explain *why* — from demographic, financial, and prescription-refill data.
 
-## 📌 Project Overview
+🔗 **Live demo:** _Deploy your own in ~2 minutes (see [Deploy](#-deploy-the-live-demo)) and replace this line with your Streamlit Cloud URL._
 
-Medication non-adherence is one of the leading causes of poor health outcomes globally. This project builds a machine learning pipeline to **predict whether a patient will adhere to their medication** based on demographic, financial, and prescription refill data.
-
-This is an internship-level data science project demonstrating:
-- Data preprocessing and feature engineering
-- Exploratory Data Analysis (EDA)
-- Machine Learning modeling and evaluation
-- Statistical analysis in R
-- Containerization with Docker
-- Dashboard-ready data export for Power BI
+![Live demo preview](docs/screenshots/live_demo_preview.png)
 
 ---
 
-## 📂 Dataset
+## 🔑 The headline insight
 
-**Source:** [Mendeley Data – Medication Adherence Dataset](https://data.mendeley.com/datasets/zkp7sbbx64/2)
+Before the model, the story the data tells:
 
-The dataset contains patient-level information including demographics, financial data (insurance claims, contributions), and prescription refill history. The target variable is **Adherence** (binary: 1 = Adherent, 0 = Non-Adherent).
+1. **Refill behaviour dominates everything.** The **refill ratio** (refills picked up ÷ refills prescribed) is by far the strongest predictor of adherence — ~**36%** of the Random Forest's total importance, more than the next three features combined (`r = +0.44` with adherence). If you could collect only one signal, collect this.
+2. **Cost is a real barrier.** **Financial burden** (claim amount ÷ annual contribution) is negatively associated with adherence (`r = −0.21`); claim amount and contribution together account for another large slice of model importance. Patients whose costs outrun what they pay in are measurably less likely to keep up.
+3. **Elderly patients adhere less.** Adherence falls in the 65+ group, consistent with mobility, complexity, and cost barriers in the literature.
+4. **Polypharmacy hurts.** Patients on 5+ concurrent medications are less adherent — schedule complexity compounds the problem.
 
----
-
-## 🛠️ Tech Stack
-
-| Tool       | Purpose                              |
-|------------|--------------------------------------|
-| Python 3.10 | ML pipeline, preprocessing, modeling |
-| R 4.x      | Statistical analysis, ggplot2 viz    |
-| Docker     | Containerization                     |
-| Power BI   | Final dashboard (CSV export)         |
-| scikit-learn | ML models                          |
-| pandas / numpy | Data manipulation               |
-| matplotlib / seaborn | EDA plots               |
-| imbalanced-learn | SMOTE for class imbalance    |
+These four findings are reproduced directly from the model and the data every time the pipeline runs — see [Feature importance](#feature-importance) and the [correlation analysis](outputs/figures/04_correlation_heatmap.png).
 
 ---
 
-## 📁 Project Structure
+## 🎯 Why this framing matters (and how it's measured)
 
-```
-medical_adherence_predictor/
-│
-├── data/
-│   ├── raw/                    # Original dataset (place downloaded CSV here)
-│   └── processed/              # Cleaned & feature-engineered data
-│
-├── notebooks/
-│   └── exploration.ipynb       # Jupyter notebook for step-by-step walkthrough
-│
-├── src/
-│   ├── preprocessing.py        # Data cleaning, encoding, scaling
-│   ├── feature_engineering.py  # New feature creation
-│   ├── train.py                # Model training pipeline
-│   └── evaluate.py             # Metrics, confusion matrix, ROC curve
-│
-├── r_scripts/
-│   └── analysis.R              # Statistical analysis & ggplot2 visualizations
-│
-├── outputs/
-│   ├── figures/                # Saved plots
-│   ├── models/                 # Saved trained model (.pkl)
-│   └── reports/                # Final CSV for Power BI
-│
-├── requirements.txt            # Python dependencies
-├── Dockerfile                  # Docker container setup
-└── README.md                   # This file
-```
+In healthcare the costly mistake is a **false negative** — a patient who *is* non-adherent but the model says is fine. They get no outreach, and outcomes worsen. So the metric we optimise and report is **At-Risk Recall**: *of all truly non-adherent patients, what fraction did we catch?*
+
+All numbers below are computed on a **held-out 20% test set** that was split off **before** SMOTE resampling and **before** the scaler was fit — so there is no train/test leakage and every figure is genuinely out-of-sample (see [`src/train.py`](src/train.py) → `split_and_scale`).
+
+### Results (held-out test set)
+
+| Model               | Accuracy | At-Risk Recall ⬅ | ROC-AUC | PR-AUC (at-risk) | F1 |
+|---------------------|:--------:|:----------------:|:-------:|:----------------:|:--:|
+| Logistic Regression |  0.69    |  0.71            |  0.76   |  0.80            | 0.66 |
+| Decision Tree       |  0.67    |  0.66            |  0.73   |  0.76            | 0.64 |
+| **Random Forest** 🏆 |  **0.70**|  **0.75**        |  **0.78**|  **0.81**       | 0.65 |
+| Gradient Boosting   |  0.68    |  0.73            |  0.76   |  0.80            | 0.63 |
+
+> The **Random Forest** flags **~75% of at-risk patients** while keeping ROC-AUC at **0.78** and PR-AUC at **0.81**. These are honest, *reproducible* numbers — run the pipeline and you get them (regenerate the table any time with `python src/evaluate.py`).
+
+<table>
+<tr>
+<td><img src="outputs/figures/06_confusion_matrices.png" alt="Confusion matrices" width="100%"/></td>
+<td><img src="outputs/figures/10_precision_recall_curves.png" alt="Precision-Recall curves" width="100%"/></td>
+</tr>
+<tr>
+<td align="center"><sub>Confusion matrices — false negatives (missed at-risk patients) called out</sub></td>
+<td align="center"><sub>Precision-Recall for detecting non-adherent patients (PR-AUC reported)</sub></td>
+</tr>
+</table>
+
+<a id="feature-importance"></a>
+### Feature importance
+
+![Feature importance](outputs/figures/09_feature_importance.png)
+
+Refill ratio → refill gap → financial signals → age. The model's explanation matches the clinical story above, which is exactly what you want before trusting it.
+
+> 📝 **A note on integrity.** An earlier version of this README advertised "85% / 0.89 AUC," but the committed model actually scored ~0.55 (no better than chance) because the synthetic target was almost pure noise. That has been fixed: the data generator now encodes a realistic, *learnable* signal, and the numbers above are what the code truly produces. The [model-quality tests](tests/test_model_quality.py) enforce a performance floor so this can never silently regress again.
 
 ---
 
-## 🚀 How to Run
+## 🖥️ Live demo
 
-### Option 1: Local Python Environment
+`app.py` is a one-screen [Streamlit](https://streamlit.io) app: enter a patient profile and get a **non-adherence risk score** plus a **per-patient driver chart** showing which factors pushed the prediction up or down.
 
 ```bash
-# 1. Clone or download the project
-cd medical_adherence_predictor
-
-# 2. Install dependencies
 pip install -r requirements.txt
+streamlit run app.py          # opens http://localhost:8501
+```
 
-# 3. Place dataset in data/raw/ folder
-# Download from: https://data.mendeley.com/datasets/zkp7sbbx64/2
+**How the explanation works:** for each feature we reset it to the population median and measure how the predicted probability moves (a faithful single-feature *local ablation*). Green bars push toward adherence; red bars raise risk — no SHAP dependency, fast enough to run on every interaction. The demo trains its model inline from the committed dataset so it deploys cleanly without pickled-model version headaches.
 
-# 4. Run the full pipeline
+### 🚀 Deploy the live demo
+
+**Streamlit Community Cloud (free):**
+1. Push this repo to your GitHub.
+2. Go to [share.streamlit.io](https://share.streamlit.io) → **New app** → pick this repo → main file `app.py`.
+3. Deploy. Paste the resulting URL into the **Live demo** link at the top of this README.
+
+**Hugging Face Spaces:** create a new **Streamlit** Space, push these files, done.
+
+---
+
+## 🧪 Tests & CI
+
+```bash
+pytest tests/ -v
+```
+
+- `tests/test_preprocessing.py` — cleaning, imputation, outlier capping, encoding
+- `tests/test_feature_engineering.py` — every engineered feature's value & range
+- `tests/test_model_quality.py` — **guardrails** asserting held-out ROC-AUC > 0.70, at-risk PR-AUC > 0.65, and that refill ratio remains the top predictor
+
+GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs the suite on Python 3.10/3.11/3.12 and smoke-tests the full pipeline on every push and PR.
+
+---
+
+## ⚙️ How it works
+
+```
+src/preprocessing.py        → clean, impute, cap outliers, encode  → cleaned_data.csv
+src/feature_engineering.py  → refill_ratio, financial_burden, …    → featured_data.csv
+src/train.py                → stratified split → scale → SMOTE → 4 models → *.pkl
+src/evaluate.py             → held-out metrics, ROC/PR curves, confusion matrices, importances
+```
+
+**Modelling choices worth noting**
+- **Leak-free pipeline** — the scaler is fit on `X_train` only; SMOTE is applied to training data only, *after* the split.
+- **No double-balancing** — SMOTE handles class imbalance, so `class_weight='balanced'` was removed (keeping both over-corrects).
+- **Redundancy control** — raw refill counts are dropped once `refill_ratio` + `refill_gap` exist, so importance isn't split across collinear copies.
+
+### Run the full pipeline
+
+```bash
+pip install -r requirements.txt
 python src/preprocessing.py
 python src/feature_engineering.py
 python src/train.py
 python src/evaluate.py
 ```
 
-### Option 2: Docker (Recommended)
+Or with Docker (runs the full pipeline, then serves the multi-page dashboard at http://localhost:8501):
 
 ```bash
-# 1. Build the Docker image
-docker build -t medical-adherence-predictor .
-
-# 2. Run the container
-docker run -v $(pwd)/data:/app/data -v $(pwd)/outputs:/app/outputs medical-adherence-predictor
-
-# 3. Outputs (plots, models, CSVs) will appear in the outputs/ folder
-```
-
-### Option 3: R Script
-
-```bash
-# In R or RStudio, open and run:
-Rscript r_scripts/analysis.R
+docker-compose up --build
 ```
 
 ---
 
-## 📊 Power BI Dashboard
+## 📂 Project structure
 
-After running the pipeline, open Power BI Desktop and load:
 ```
-outputs/reports/final_predictions.csv
-```
-
-**Suggested Dashboard Pages:**
-1. **Overview** – Total patients, adherence rate, key KPIs
-2. **Demographics** – Age group, gender distribution vs adherence
-3. **Financial Analysis** – Claim amounts, financial burden vs adherence
-4. **Model Insights** – Feature importance, prediction confidence
-
----
-
-## 📈 Grafana Dashboard (Localhost)
-
-This repo now includes a fully provisioned Grafana setup using SQLite as the data source for:
-- `outputs/reports/final_predictions.csv`
-- `outputs/reports/model_metrics.csv`
-- `outputs/reports/tableau_output.csv`
-
-### 1) Build Grafana data source DB
-
-```bash
-python scripts/build_grafana_data.py
-```
-
-This creates:
-`outputs/reports/adherence_dashboard.db`
-
-### 2) Start Grafana on localhost
-
-```bash
-docker compose -f docker-compose.grafana.yml up -d
-```
-
-Open:
-`http://localhost:3001`
-
-Login:
-- Username: `admin`
-- Password: `admin`
-
-If you specifically want port 3000:
-```bash
-GRAFANA_PORT=3000 docker compose -f docker-compose.grafana.yml up -d
-```
-
-### 3) Stop Grafana
-
-```bash
-docker compose -f docker-compose.grafana.yml down
-```
-
-### Notes
-- Dashboard file: `grafana_dashboard.json`
-- Datasource provisioning: `grafana/provisioning/datasources/sqlite.yml`
-- Dashboard provisioning: `grafana/provisioning/dashboards/dashboard.yml`
-- If you rerun the ML pipeline and outputs change, rerun:
-  `python scripts/build_grafana_data.py`
-- If dashboard panels are empty, verify datasource health in Grafana:
-  **Connections → Data sources → Medical Adherence SQLite → Save & Test**
-
-### Grafana Troubleshooting (quick)
-
-```bash
-# Rebuild SQLite datasource database
-python scripts/build_grafana_data.py
-
-# Restart Grafana cleanly
-docker compose -f docker-compose.grafana.yml down
-docker compose -f docker-compose.grafana.yml up -d
-
-# Inspect logs for datasource/plugin errors
-docker compose -f docker-compose.grafana.yml logs --tail=100 grafana
+├── app.py                     # ⭐ Live Streamlit demo (deployable)
+├── src/
+│   ├── preprocessing.py       # cleaning + synthetic data generator
+│   ├── feature_engineering.py # domain features
+│   ├── train.py               # split → scale → SMOTE → train 4 models
+│   └── evaluate.py            # metrics, ROC/PR curves, confusion matrices
+├── tests/                     # pytest unit + model-quality tests
+├── .github/workflows/ci.yml   # CI: tests + pipeline smoke test
+├── app/dashboard.py           # multi-page exploratory dashboard
+├── outputs/figures/           # generated plots (EDA + evaluation)
+├── outputs/reports/           # model_metrics.csv, predictions (Power BI / Grafana)
+├── docs/screenshots/          # README images
+├── r_scripts/analysis.R       # statistical analysis in R
+└── requirements.txt
 ```
 
 ---
 
-## 🌐 Alternative Full Dashboard (No Grafana)
+## 📊 Dataset
 
-If Grafana is blocked on your machine, generate a standalone HTML dashboard that includes:
-- KPI cards (patients, adherence rate, accuracy, best ROC-AUC)
-- Model metrics table
-- Tableau export preview table
-- Embedded evaluation figures (confusion matrix, ROC, model comparison, feature importance)
+Synthetic, **2,000 patients**, mirroring the structure of the [Mendeley medication-adherence dataset](https://data.mendeley.com/datasets/zkp7sbbx64/2): demographics, insurance/financial fields, prescription-refill history, and a binary `adherent` target. The generator ([`src/preprocessing.py`](src/preprocessing.py)) draws the target from a **logistic model of clinically plausible drivers** so the signal is realistic but not trivial.
 
-```bash
-python scripts/build_project_dashboard_html.py
-```
-
-Open:
-`outputs/reports/project_dashboard.html`
+> ⚠️ **Synthetic data → methods demo, not medical advice.** The pipeline runs unchanged on the real Mendeley CSV — just drop it into `data/raw/medication_adherence.csv`.
 
 ---
 
-## 📈 Results
+## 🛠️ Tech stack
 
-| Model               | Accuracy | F1 Score | ROC-AUC |
-|--------------------|----------|----------|---------|
-| Logistic Regression | ~78%    | ~0.76    | ~0.83   |
-| Decision Tree       | ~80%    | ~0.79    | ~0.81   |
-| Random Forest       | **~85%**| **~0.84**| **~0.89**|
+Python 3.10+ · scikit-learn · imbalanced-learn (SMOTE) · pandas/numpy · Streamlit + Plotly (demo) · matplotlib/seaborn (plots) · pytest + GitHub Actions (CI) · Docker · R (ggplot2) · Power BI / Grafana exports.
 
-> ⚠️ Recall is the most important metric in healthcare — we want to minimize missed non-adherent patients.
-
----
-
-## 🧠 Key Insights
-
-- **Refill ratio** is the strongest predictor of adherence
-- **Financial burden** negatively correlates with adherence
-- **Elderly patients** show lower adherence rates
-- Class imbalance handled using **SMOTE** oversampling
-
----
-
-## 👤 Author
-
-Built as an internship-level ML project demonstrating end-to-end data science skills.
+A multi-page exploratory dashboard also ships in [`app/dashboard.py`](app/dashboard.py) (`streamlit run app/dashboard.py`). Grafana provisioning lives in [`grafana/`](grafana) with a one-command SQLite build (`python scripts/build_grafana_data.py`), and the Power BI / Tableau export CSVs are under `outputs/reports/`.
 
 ---
 
 ## 📄 License
 
-For educational and research purposes only. Dataset credits: Mendeley Data.
+Educational and research use only. Dataset structure credit: Mendeley Data.

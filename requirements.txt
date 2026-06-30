@@ -24,6 +24,9 @@ Pillow>=10.0.0,<11              # Image loading in dashboard
 scipy>=1.13.0,<2
 openpyxl>=3.1.2,<4
 
+# Testing (CI)
+pytest>=8.0.0,<9
+
 # Jupyter (optional, for local exploration)
 jupyter>=1.0.0
 ipykernel>=6.29.0

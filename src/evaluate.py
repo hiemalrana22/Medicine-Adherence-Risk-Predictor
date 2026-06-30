@@ -35,7 +35,8 @@ warnings.filterwarnings('ignore')
 
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
-    roc_auc_score, roc_curve, confusion_matrix, classification_report
+    roc_auc_score, roc_curve, confusion_matrix, classification_report,
+    average_precision_score, precision_recall_curve
 )
 
 
@@ -80,17 +81,27 @@ def load_models_and_data():
 
 def compute_metrics(models: dict, X_test, y_test) -> pd.DataFrame:
     """
-    Compute all evaluation metrics for each model.
+    Compute all evaluation metrics for each model on the HELD-OUT TEST SET.
+
+    These numbers are computed on `data/processed/test_data.csv`, which is the
+    20% partition that was split off BEFORE SMOTE and BEFORE the scaler was fit
+    (see train.py::split_and_scale). No test row was ever seen during training,
+    so every figure below is an out-of-sample estimate — not a training score.
 
     Metrics Explained:
-    - Accuracy:  % of all predictions that are correct
-    - Precision: Of predicted adherent, how many truly are?
-    - Recall:    Of truly non-adherent, how many did we catch?
-    - F1 Score:  Harmonic mean of Precision and Recall
-    - ROC-AUC:   Model's ability to separate classes (1.0 = perfect)
+    - Accuracy:        % of all predictions that are correct
+    - Precision:       Of predicted adherent, how many truly are?
+    - Recall:          Of truly adherent, how many did we catch? (pos = adherent)
+    - At-Risk Recall:  Of truly NON-adherent patients, how many did we flag?
+                       (pos = non-adherent) — THE metric that matters clinically,
+                       because a missed non-adherent patient gets no intervention.
+    - F1 Score:        Harmonic mean of precision and recall
+    - ROC-AUC:         Threshold-free class separation (1.0 = perfect, 0.5 = random)
+    - PR-AUC(At-Risk): Average precision for detecting non-adherent patients —
+                       a more honest summary than ROC-AUC on imbalanced classes.
     """
     print("\n" + "─" * 60)
-    print("Classification Metrics (all models)")
+    print("Classification Metrics — HELD-OUT TEST SET (out-of-sample)")
     print("─" * 60)
 
     results = []
@@ -105,21 +116,33 @@ def compute_metrics(models: dict, X_test, y_test) -> pd.DataFrame:
         f1   = f1_score(y_test, y_pred, zero_division=0)
         auc  = roc_auc_score(y_test, y_prob) if y_prob is not None else 0.0
 
+        # ── At-risk (non-adherent = class 0) view — the clinical priority ──
+        at_risk_recall = recall_score(y_test, y_pred, pos_label=0, zero_division=0)
+        # PR-AUC for detecting the non-adherent class: flip labels & scores
+        pr_auc_at_risk = (
+            average_precision_score((y_test == 0).astype(int), 1 - y_prob)
+            if y_prob is not None else 0.0
+        )
+
         results.append({
-            'Model'    : name,
-            'Accuracy' : round(acc, 4),
-            'Precision': round(prec, 4),
-            'Recall'   : round(rec, 4),
-            'F1 Score' : round(f1, 4),
-            'ROC-AUC'  : round(auc, 4),
+            'Model'          : name,
+            'Accuracy'       : round(acc, 4),
+            'Precision'      : round(prec, 4),
+            'Recall'         : round(rec, 4),
+            'At-Risk Recall' : round(at_risk_recall, 4),
+            'F1 Score'       : round(f1, 4),
+            'ROC-AUC'        : round(auc, 4),
+            'PR-AUC (At-Risk)': round(pr_auc_at_risk, 4),
         })
 
         print(f"\n   {name}")
-        print(f"      Accuracy:  {acc:.4f}")
-        print(f"      Precision: {prec:.4f}")
-        print(f"      Recall:    {rec:.4f}  ← Most important in healthcare!")
-        print(f"      F1 Score:  {f1:.4f}")
-        print(f"      ROC-AUC:   {auc:.4f}")
+        print(f"      Accuracy:          {acc:.4f}")
+        print(f"      Precision:         {prec:.4f}")
+        print(f"      Recall (adherent): {rec:.4f}")
+        print(f"      At-Risk Recall:    {at_risk_recall:.4f}  ← catches non-adherent patients (clinical priority)")
+        print(f"      F1 Score:          {f1:.4f}")
+        print(f"      ROC-AUC:           {auc:.4f}")
+        print(f"      PR-AUC (At-Risk):  {pr_auc_at_risk:.4f}")
 
         print(f"\n      Classification Report:")
         print(classification_report(y_test, y_pred,
@@ -215,6 +238,50 @@ def plot_roc_curves(models: dict, X_test, y_test):
     plt.savefig(f"{FIGURES_DIR}/07_roc_curves.png", bbox_inches='tight')
     plt.close()
     print(f"   [OK] Saved: 07_roc_curves.png")
+
+
+def plot_pr_curves(models: dict, X_test, y_test):
+    """
+    Plot Precision-Recall curves for detecting the NON-ADHERENT (at-risk) class.
+
+    Why PR (not just ROC)?
+    - The clinically useful question is "of the patients we flag as at-risk,
+      how many really are, and how many at-risk patients do we catch?"
+    - PR curves answer exactly that and are far more informative than ROC when
+      the at-risk class is the minority. PR-AUC (average precision) is the
+      single-number summary we report alongside recall.
+    """
+    fig, ax = plt.subplots(figsize=(8, 6))
+    colors = sns.color_palette("tab10", n_colors=max(1, len(models)))
+
+    # Baseline = prevalence of the at-risk (non-adherent) class
+    baseline = float((y_test == 0).mean())
+
+    for (name, model), color in zip(models.items(), colors):
+        if hasattr(model, 'predict_proba'):
+            y_prob = model.predict_proba(X_test)[:, 1]
+            at_risk_true  = (y_test == 0).astype(int)
+            at_risk_score = 1 - y_prob
+            prec, rec, _ = precision_recall_curve(at_risk_true, at_risk_score)
+            ap = average_precision_score(at_risk_true, at_risk_score)
+            ax.plot(rec, prec, color=color, lw=2,
+                    label=f"{name} (PR-AUC = {ap:.3f})")
+
+    ax.axhline(baseline, color='gray', lw=1.5, ls='--',
+               label=f'No-skill baseline ({baseline:.3f})')
+    ax.set_xlim([0.0, 1.0])
+    ax.set_ylim([0.0, 1.05])
+    ax.set_xlabel("Recall — fraction of at-risk patients caught", fontsize=12)
+    ax.set_ylabel("Precision — of those flagged, fraction truly at-risk", fontsize=12)
+    ax.set_title("Precision-Recall Curves — Detecting Non-Adherent Patients",
+                 fontsize=13, fontweight='bold')
+    ax.legend(loc="upper right", fontsize=10)
+    ax.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(f"{FIGURES_DIR}/10_precision_recall_curves.png", bbox_inches='tight')
+    plt.close()
+    print(f"   [OK] Saved: 10_precision_recall_curves.png")
 
 
 def plot_metrics_comparison(metrics_df: pd.DataFrame):
@@ -419,6 +486,7 @@ def main():
     print("─" * 60)
     plot_confusion_matrices(models, X_test, y_test)
     plot_roc_curves(models, X_test, y_test)
+    plot_pr_curves(models, X_test, y_test)
     plot_metrics_comparison(metrics_df)
 
     # Feature importance
